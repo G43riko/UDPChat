@@ -3,6 +3,7 @@ package org.chat.message;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.chat.Config;
 import org.chat.utils.Utils;
 
 public class Message {
@@ -22,13 +23,28 @@ public class Message {
 		id = part.getId();
 		
 		if(isComplete())
-			parent.getParent().recieveMessage(getText());
+			messageProccess();
 		
 	}
 	
+	/**
+	 * spracuje kompletnú správu po prijatí
+	 */
+	private void messageProccess() {
+		switch(messages.get(0).getType()){
+			case MessageManager.MESSAGE_TEXT :
+				parent.getParent().recieveMessage(getText());				
+				break;
+			case MessageManager.MESSAGE_WELCOME :
+				parent.proccessWelcomeMessage(getText());
+				break;
+		}
+	}
+
 	public Message(String message, MessageManager parent, int id, byte messageType){
 		this.parent = parent;
 		this.id = id;
+		
 		ArrayList<String> msgs = divideMessage(message, parent.getParent().getMaxMsgLenght());
 		parts = msgs.size();
 		for(int i=0 ; i<parts ; i++){
@@ -55,11 +71,6 @@ public class Message {
 		return result;
 	}
 	
-//	@Override
-//	public String toString() {
-//		return messages.toString();
-//	}
-
 	/**
 	 * Spracuje prijatú správu
 	 * @param msg
@@ -69,7 +80,7 @@ public class Message {
 			messages.put(msg.getOrder(), msg);
 		
 		if(isComplete())
-			parent.getParent().recieveMessage(getText());
+			messageProccess();
 	}
 
 	/**

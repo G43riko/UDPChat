@@ -22,7 +22,7 @@ public final class Server implements Connectionable{
 	private DatagramSocket socket;
 	private UDPChat parent;
 	private Thread listen;
-	
+	private boolean running = true;
 	
 	
 	public Server(UDPChat parent) {
@@ -40,6 +40,8 @@ public final class Server implements Connectionable{
 	}
 
 	public void stop() {
+		running = false;
+		socket.close();
 	}
 	
 	public void write(String message){
@@ -59,7 +61,7 @@ public final class Server implements Connectionable{
 		listen = new Thread(new Runnable(){
 			@Override
 			public void run() {
-				while(true){
+				while(running){
 					try {
 						byte[] block = new byte[Config.CHAT_TOTAL_MAX_MSG_SIZE];
 						DatagramPacket inpacket = new DatagramPacket(block, block.length);
@@ -67,7 +69,7 @@ public final class Server implements Connectionable{
 						
 						proccessMessage(new String(inpacket.getData(), 0, inpacket.getLength()));
 					} catch (IOException e) {
-						e.printStackTrace();
+						Log.write("Server socket bol zatvorený", Log.EXCEPTIONS);
 					}
 				}
 			}
@@ -78,21 +80,8 @@ public final class Server implements Connectionable{
 	
 	private void proccessMessage(String message){
 		Log.write("server prijal správu " + message, Log.CONNECTION);
-		parent.getMessageManager().proccessMessage(message);
+		parent.getMessageManager().proccessAllRecievedMessages(message);
 	}
-	
-//	public DatagramPacket getPacket(String message, int maxSize){
-//		try {
-//			byte[] block = new byte[maxSize];
-//			DatagramPacket inpacket = new DatagramPacket(block, block.length);
-//			socket.receive(inpacket);
-//			String inmessage = new String(inpacket.getData(), 0, inpacket.getLength());
-//			
-//		} catch (IOException e) {
-//			e.printStackTrace();
-//		}
-//		return null;
-//	}
 
 	@Override
 	public boolean isServer() {return true;}

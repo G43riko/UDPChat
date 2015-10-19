@@ -17,7 +17,18 @@ public class UDPChat {
 	private String login;
 	private String port;
 	private String ip;
-	private int maxMsgLenght = Config.CHAT_DEFAULT_MSG_SIZE;
+	
+	private String oponenName;
+	
+	public String getOponenName() {
+		return oponenName;
+	}
+
+	public void setOponenName(String oponenName) {
+		this.oponenName = oponenName;
+	}
+	private long lastContact;
+	//private int maxMsgLenght = Config.CHAT_DEFAULT_MSG_SIZE;
 
 	public UDPChat(){
 		Log.write("zaèal konštruktor objektu UDPChat", Log.CONSTRUCTORS);
@@ -46,20 +57,23 @@ public class UDPChat {
 		
 		connection = isHost ? new Server(this) : new Client(this); 
 		
-		sendMessage("", Server.CLIENT_CONNECT);
+		//sendMessage("", Server.CLIENT_CONNECT);
+		if(!isHost)
+			messages.createWelcomeMessage();
+		
 		
 		gui.showChatView(login);
 	}
 
 	public void recieveMessage(String message){
-		gui.appendText(message);
+		gui.appendText(message, true);
 	}
 	
 	public void sendMessage(String text, byte type) {
 		if(text.isEmpty())
 			return;
-		gui.appendText(text);
-		messages.createMessage(text);
+		gui.appendText(text, false);
+		messages.createTextMessage(text);
 		//connection.write(text);
 	}
 	
@@ -68,7 +82,7 @@ public class UDPChat {
 	public boolean isConnected() {return connected;}
 	public boolean isServer(){return connection.isServer();}
 
-	public int getMaxMsgLenght() {return maxMsgLenght;}
+	public int getMaxMsgLenght() {return gui.getMaxSize();}
 	public int getPort() {return Integer.valueOf(port);}
 	public String getLogin() {return login;}
 	public String getIp() {return ip;}

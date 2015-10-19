@@ -14,6 +14,7 @@ public final class Client implements Connectionable{
 	private UDPChat parent;
 	private DatagramSocket socket;
 	private Thread listen;
+	private boolean running = true;
 	
 	public Client(UDPChat parent) {
 		Log.write("zaèal konštruktor objektu Client", Log.CONSTRUCTORS);
@@ -31,7 +32,7 @@ public final class Client implements Connectionable{
 		listen = new Thread(new Runnable(){
 			@Override
 			public void run() {
-				while(true){
+				while(running){
 					try {
 						byte[] block = new byte[Config.CHAT_TOTAL_MAX_MSG_SIZE];
 						DatagramPacket inpacket = new DatagramPacket(block, block.length);
@@ -39,7 +40,7 @@ public final class Client implements Connectionable{
 						
 						proccessMessage(new String(inpacket.getData(), 0, inpacket.getLength()));
 					} catch (IOException e) {
-						e.printStackTrace();
+						Log.write("Client socket bol zatvorený", Log.EXCEPTIONS);
 					}
 				}
 			}
@@ -50,12 +51,12 @@ public final class Client implements Connectionable{
 	
 	private void proccessMessage(String message){
 		Log.write("client prijal správu " + message, Log.CONNECTION);
-		parent.getMessageManager().proccessMessage(message);
+		parent.getMessageManager().proccessAllRecievedMessages(message);
 	}
 	
 	public void stop() {
-		// TODO Auto-generated method stub
-		
+		running = false;
+		socket.close();
 	}
 
 	@Override

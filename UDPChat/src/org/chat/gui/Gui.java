@@ -4,19 +4,11 @@ import java.awt.BorderLayout;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 
-import javax.swing.ButtonGroup;
-import javax.swing.JButton;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
-import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
 
 import org.chat.Config;
 import org.chat.UDPChat;
-import org.chat.core.Server;
 
 public class Gui extends JFrame{
 	private static final long serialVersionUID = 1L;
@@ -48,26 +40,11 @@ public class Gui extends JFrame{
 	};
 	
 	private UDPChat parent;
-	
+
 	private JPanel contentPanel;
-	//LOGIN VIEW
 	
-	private JTextField login;
-	private JTextField ip;
-	private JTextField port;
-	
-	private JButton start;
-	
-	private JRadioButton guestOption;
-	private JRadioButton hostOption;
-	
-	//CHAT VIEW
-	
-	JTextArea chatHistory = new JTextArea(10,25);
-	JTextArea message;
-	
-	JButton sentMessage;
-	JButton logout;
+	private LoginPanel login = new LoginPanel(this);
+	private ChatPanel  chat  = new ChatPanel(this); 
 	
 	//CONSTRUCTORS
 	
@@ -86,8 +63,8 @@ public class Gui extends JFrame{
 	
 	//OTHERS
 	
-	public void appendText(String txt){
-		chatHistory.append(txt+"\n");
+	public void appendText(String txt, boolean recieve){
+		chat.appendText((recieve ? parent.getOponenName() : parent.getLogin()) + ": " + txt + "\n");
 	}
 	
 	//SHOWS
@@ -95,107 +72,34 @@ public class Gui extends JFrame{
 	public void showChatView(String name){
 		contentPanel.removeAll();
 		
-		contentPanel.add(createLogoutPanel(name), BorderLayout.NORTH);
-		contentPanel.add(createMessagePanel(), BorderLayout.SOUTH);
-		contentPanel.add(createTextAreaPanel(), BorderLayout.CENTER);
+		contentPanel.add(chat.createLogoutPanel(name), BorderLayout.NORTH);
+		contentPanel.add(chat.createMessagePanel(), BorderLayout.SOUTH);
+		contentPanel.add(chat.createTextAreaPanel(), BorderLayout.CENTER);
 		
 		setVisible(true);
+		setTitle(Config.GUI_TITLE + ": " + name);
 		pack();
 	}
 	
 	public void showLoginView(){
 		contentPanel.removeAll();
 		
-		contentPanel.add(createLoginPanel(), BorderLayout.NORTH);
-		contentPanel.add(createAdressPanel(), BorderLayout.SOUTH);
-		contentPanel.add(createCheckBoxesPanel(), BorderLayout.CENTER);
+		contentPanel.add(login.createLoginPanel(), BorderLayout.NORTH);
+		contentPanel.add(login.createAdressPanel(), BorderLayout.SOUTH);
+		contentPanel.add(login.createCheckBoxesPanel(), BorderLayout.CENTER);
+		setTitle(Config.GUI_TITLE);
 		setVisible(true);
 		pack();
 	}
 	
-	//CREATORS
+	//GETTERS
 	
-	private JPanel createTextAreaPanel(){
-		JPanel panel = new JPanel();
-		
-		chatHistory.setLineWrap(true);
-		chatHistory.setEditable(false);
-		
-		JScrollPane scroll = new JScrollPane(chatHistory);
-		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		panel.add(scroll);
-
-		return panel;
-	}
-	
-	private JPanel createMessagePanel(){
-		JPanel panel = new JPanel();
-		panel.add(message = new JTextArea(2, 19));
-		panel.add(sentMessage = new JButton("Send"));
-		
-		sentMessage.addActionListener(a -> {
-			parent.sendMessage(message.getText(), Server.CLIENT_SEND_MSG);
-			message.setText("");
-		});
-
-		
-		return panel;
-	}
-	
-	private JPanel createLogoutPanel(String name){
-		JPanel panel = new JPanel();
-		panel.setLayout(new BorderLayout());
-		panel.add(new JLabel("Login: " + name), BorderLayout.WEST);
-
-		panel.add(logout = new JButton("Logout"), BorderLayout.EAST);
-		logout.addActionListener(a -> parent.stop(true));
-		
-		return panel;
-	}
-	
-	private JPanel createLoginPanel(){
-		JPanel panel = new JPanel();
-		panel.add(new JLabel("Login"));
-		
-		panel.add(login = new JTextField("userName", 15));
-	
-		panel.add(start = new JButton("Start"));
-		start.addActionListener(a -> parent.start(login.getText(), ip.getText(),port.getText(), hostOption.isSelected()));
-		
-		return panel;
-	}
-	
-	private JPanel createCheckBoxesPanel(){
-		JPanel panel = new JPanel();
-		ButtonGroup bg = new ButtonGroup();
-		
-		guestOption = new JRadioButton("Guest", true);
-		hostOption = new JRadioButton("Host", false);
-		
-		guestOption.addActionListener(a -> ip.setEnabled(guestOption.isSelected()));
-		hostOption.addActionListener(a -> {
-			ip.setEnabled(guestOption.isSelected()) ;
-			ip.setText("localhost");
-		});
-		
-		bg.add(guestOption);
-		bg.add(hostOption);
-		
-		panel.add(guestOption);
-		panel.add(hostOption);
-		
-		return panel;
+	public int getMaxSize(){
+		return chat.getMaxSize();
 	}
 
-	private JPanel createAdressPanel(){
-		JPanel panel = new JPanel();
-		
-		panel.add(new JLabel("IP Adress: "));
-		panel.add(ip = new JTextField(Config.GUI_DEFAULT_ADRESS, 10));
-		panel.add(new JLabel("PORT: "));
-		panel.add(port = new JTextField(Config.GUI_DEFAULT_PORT, 3));
-		
-		return panel;
+	public UDPChat getChat() {
+		return parent;
 	}
+	
 }
