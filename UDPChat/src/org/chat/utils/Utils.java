@@ -1,6 +1,8 @@
 package org.chat.utils;
 
 import java.lang.reflect.Array;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.nio.ByteBuffer;
 
 public class Utils {
@@ -29,6 +31,15 @@ public class Utils {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+	}
+
+	public static String getIP() {
+		try {
+			return InetAddress.getLocalHost().getHostAddress();
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
+		return "Error";
 	}
 	
 //	public static<T> T[] concatenate (T[] a, T[] b) {

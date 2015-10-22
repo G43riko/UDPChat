@@ -1,5 +1,7 @@
 package org.chat;
 
+import java.io.File;
+
 import org.chat.core.Client;
 import org.chat.core.Connectionable;
 import org.chat.core.Server;
@@ -77,8 +79,12 @@ public class UDPChat {
 		//connection.write(text);
 	}
 	
-	public MessageManager getMessageManager() {return messages;}
 
+	public void sendFile(File file) {
+		gui.appendText("Odoslal sa súbor: " + file.getName(), false);
+		messages.createFileMessage(file);
+	}
+	
 	public boolean isConnected() {return connected;}
 	public boolean isServer(){return connection.isServer();}
 
@@ -87,4 +93,5 @@ public class UDPChat {
 	public String getLogin() {return login;}
 	public String getIp() {return ip;}
 	public Connectionable getConnection() {return connection;}
+	public MessageManager getMessageManager() {return messages;}
 }

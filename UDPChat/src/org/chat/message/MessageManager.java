@@ -1,5 +1,8 @@
 package org.chat.message;
 
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.Arrays;
@@ -35,11 +38,23 @@ public class MessageManager {
 	 * @return
 	 */
 	private MessagePart createMessagePart(byte[] data){
-		return new MessagePart(new String(data, 12, data.length - 12), 
-							   Utils.getInt(Arrays.copyOfRange(data, 0, 4)), 
-							   Utils.getInt(Arrays.copyOfRange(data, 4, 8)), 
-							   Utils.getInt(Arrays.copyOfRange(data, 8, 12)), 
-							   data[12]);
+		if(data[12] == MESSAGE_FILE){
+			int fileNameLengh = Utils.getInt(Arrays.copyOfRange(data, 13, 17));
+			int order = Utils.getInt(Arrays.copyOfRange(data, 4, 8));
+			return new MessagePart(order == 0 ? new String(data, 12, data.length - 12) : null,
+					   			  order == 0 ? new String(Arrays.copyOfRange(data, 17, 17 + fileNameLengh)) : null,
+					   			  Utils.getInt(Arrays.copyOfRange(data, 0, 4)), 
+					   			  order, 
+					   			  Utils.getInt(Arrays.copyOfRange(data, 8, 12)),
+					   			  data[12]);
+		}
+		else
+			return new MessagePart(new String(data, 12, data.length - 12),
+								   null,
+								   Utils.getInt(Arrays.copyOfRange(data, 0, 4)), 
+								   Utils.getInt(Arrays.copyOfRange(data, 4, 8)), 
+								   Utils.getInt(Arrays.copyOfRange(data, 8, 12)), 
+								   data[12]);
 	}
 	
 	
@@ -57,21 +72,13 @@ public class MessageManager {
 	 */
 	public void createWelcomeMessage(){
 		int id = IDGenerator.getId();
-		try {
-			messages.put(id, 
-						 new Message(parent.getLogin() + ":" + InetAddress.getLocalHost().getHostAddress(),
-								 	 this, 
-								 	 id, 
-								 	 MESSAGE_WELCOME));
-		} catch (UnknownHostException e) {
-			e.printStackTrace();
-		}
+		messages.put(id, new Message(parent.getLogin() + ":" + Utils.getIP(), this,  id,  MESSAGE_WELCOME));
 	}
 
 	public void proccessWelcomeMessage(String message) {
 		String[] text = message.split(":");
-		System.out.println("bola prijaté správa: " + message);
-		users.put(text[0], new User(text[0]));
+		//System.out.println("bola prijaté správa: " + message);
+		//users.put(text[0], new User(text[0]));
 		parent.setOponenName(text[0]);
 		
 		if(parent.isServer())
@@ -112,5 +119,22 @@ public class MessageManager {
 	
 	public void checkFailedMessages(){
 		
+	}
+
+	public void createFileMessage(File file) {
+		int id = IDGenerator.getId();
+		messages.put(id, new Message(file, this, id));
+	}
+
+	public void proccessFileMessage(String text, String fileName) {
+		try {
+			File file = new File(fileName);
+			FileWriter fw = new FileWriter(file);
+			fw.write(text);
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 }

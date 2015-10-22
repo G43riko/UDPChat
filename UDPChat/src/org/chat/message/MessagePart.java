@@ -18,15 +18,18 @@ public class MessagePart {
 	
 	//CONSTRUCTORS
 
-	public MessagePart(String text, int id, int messagesNumber, int messageOrder, byte messageType) {
+	public MessagePart(String text, String fileName, int id, int messagesNumber, int messageOrder, byte messageType) {
 		this.messagesNumber = messagesNumber;
 		this.messageOrder = messageOrder;
 		this.messageType = messageType;
+		this.fileName = fileName;
 		this.text = text;
 		this.id = id;
-		data = createHeader(id, messagesNumber, messageOrder, messageType, null);
-
-		data = Utils.concatenate(data, text.getBytes());
+		
+		System.out.println("názov súboru je: " + fileName);
+		data = createHeader(id, messagesNumber, messageOrder, messageType, fileName);
+		if(text != null)
+			data = Utils.concatenate(data, text.getBytes());
 	}
 
 	//id spravy, pocet sprav,cislo spravy, velkos správy, typ spravy, [velkos nazvu suboru, nazov suboru]
@@ -36,7 +39,15 @@ public class MessagePart {
 //		return messageType + " - " + messageOrder + "/" + messagesNumber + " : " + text;
 //	}
 	
-	
+//	
+//	public MessagePart(String text, String name, int id, int size, int order, byte messageFile) {
+//		this.messagesNumber = messagesNumber;
+//		this.messageOrder = messageOrder;
+//		this.messageType = messageType;
+//		this.text = text;
+//		this.id = id;
+//	}
+
 	/**
 	 * poskladá hlavièku s údajov v argumente
 	 * @param id
@@ -51,20 +62,23 @@ public class MessagePart {
 		byte[]result = Utils.concatenate(Utils.getByteArray(id), Utils.getByteArray(messagesNumber));
 			  result = Utils.concatenate(result, Utils.getByteArray(messageOrder));
 			  result = Utils.concatenate(result, new byte[]{type});
-		if(type == MessageManager.MESSAGE_FILE)
+		if(fileName != null){
 			result = Utils.concatenate(result, Utils.getByteArray(filename.length()));
+			result = Utils.concatenate(result, filename.getBytes());
+		}
 		
 		return result;
 	}
 	
 	//GETTERS
 
-	public int getId() {return id;}
 	public String getText() {return text.substring(1, text.length());}
-	public byte getType() {return messageType;}
+	public String getFileName() {return fileName;}
+	public int getId() {return id;}
 	public int getOrder() {return messageOrder;}
 	public int getNumber() {return messagesNumber;}
 	public byte[] getData() {return data;}
+	public byte getType() {return messageType;}
 
 }
 

@@ -5,6 +5,7 @@ import java.awt.Dimension;
 import java.awt.Panel;
 
 import javax.swing.JButton;
+import javax.swing.JFileChooser;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -25,6 +26,8 @@ public class ChatPanel extends Panel{
 	
 	private JButton sentMessage;
 	private JButton logout;
+	private JButton loadImage;
+	private JFileChooser fileChooser = new JFileChooser();
 	
 	private JSpinner maxSize;
 	
@@ -76,10 +79,10 @@ public class ChatPanel extends Panel{
 		panel.setLayout(new BorderLayout());
 		//panel.add(new JLabel(name), BorderLayout.WEST);
 		
-		maxSize = new JSpinner(new SpinnerNumberModel(10,
+		maxSize = new JSpinner(new SpinnerNumberModel(Config.CHAT_DEFAULT_MSG_SIZE,
 													  1,
 													  Config.CHAT_TOTAL_MAX_MSG_SIZE,
-													  Config.CHAT_DEFAULT_MSG_SIZE));
+													  10));
 		
 		
 		JPanel p = new JPanel();
@@ -87,6 +90,12 @@ public class ChatPanel extends Panel{
 		maxSize.getEditor().setPreferredSize(new Dimension(20,20));
 		p.add(maxSize);
 		panel.add(p,BorderLayout.CENTER);
+		loadImage = new JButton("send image");
+		loadImage.addActionListener(a -> {
+			fileChooser.showOpenDialog(null);
+			parent.getChat().sendFile(fileChooser.getSelectedFile());
+		});
+		panel.add(loadImage, BorderLayout.WEST);
 		panel.add(logout = new JButton("Logout"), BorderLayout.EAST);
 		logout.addActionListener(a -> parent.getChat().stop(true));
 		
