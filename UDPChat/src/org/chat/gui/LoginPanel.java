@@ -14,16 +14,13 @@ import org.chat.Config;
 public class LoginPanel extends Panel{
 	private static final long serialVersionUID = 1L;
 
-	private Gui parent;
-	
-	private JTextField login;
-	private JTextField ip;
-	private JTextField port;
-	
-	private JButton start;
-	
-	private JRadioButton guestOption;
-	private JRadioButton hostOption;
+	private Gui 			parent;
+	private JTextField 		login 		= new JTextField("userName", 15);
+	private JTextField 		ip 			= new JTextField(Config.GUI_DEFAULT_ADRESS, 10);
+	private JTextField 		port 		= new JTextField(Config.GUI_DEFAULT_PORT, 3);
+	private JRadioButton 	guestOption = new JRadioButton("Guest", true);
+	private JRadioButton 	hostOption	= new JRadioButton("Host", false);
+	private JButton 		start 		= new JButton("Start");
 	
 	//CONSTRUCTORS
 	
@@ -36,10 +33,8 @@ public class LoginPanel extends Panel{
 	JPanel createLoginPanel(){
 		JPanel panel = new JPanel();
 		panel.add(new JLabel("Login"));
-		
-		panel.add(login = new JTextField("userName", 15));
-	
-		panel.add(start = new JButton("Start"));
+		panel.add(login);
+		panel.add(start);
 		start.addActionListener(a -> parent.getChat().start(login.getText(), 
 												  			  ip.getText(),
 												  			  port.getText(), 
@@ -51,9 +46,6 @@ public class LoginPanel extends Panel{
 	JPanel createCheckBoxesPanel(){
 		JPanel panel = new JPanel();
 		ButtonGroup bg = new ButtonGroup();
-		
-		guestOption = new JRadioButton("Guest", true);
-		hostOption = new JRadioButton("Host", false);
 		
 		guestOption.addActionListener(a -> ip.setEnabled(guestOption.isSelected()));
 		hostOption.addActionListener(a -> {
@@ -74,9 +66,9 @@ public class LoginPanel extends Panel{
 		JPanel panel = new JPanel();
 		
 		panel.add(new JLabel("IP Adress: "));
-		panel.add(ip = new JTextField(Config.GUI_DEFAULT_ADRESS, 10));
+		panel.add(ip);
 		panel.add(new JLabel("PORT: "));
-		panel.add(port = new JTextField(Config.GUI_DEFAULT_PORT, 3));
+		panel.add(port);
 		
 		return panel;
 	}

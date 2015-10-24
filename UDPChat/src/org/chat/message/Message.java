@@ -1,58 +1,26 @@
 package org.chat.message;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.CharBuffer;
 import java.nio.file.Files;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
-
-import org.chat.Config;
-import org.chat.utils.Utils;
 
 public class Message {
 	private HashMap<Integer, MessagePart> messages = new HashMap<Integer, MessagePart>();
 	private MessageManager parent;
 	private int id;
 	private int parts;
+	private String fileName;
 	
-	public int getId() {
-		return id;
-	}
+	//CONSTRUCTORS
 	
-	public Message(MessageManager parent, MessagePart part){
+	public Message(MessageManager parent, MessagePart msg){
 		this.parent = parent;
-		messages.put(part.getOrder(), part);
-		parts = part.getNumber();
-		id = part.getId();
+		parts = msg.getNumber();
+		id = msg.getId();
 		
-		if(isComplete())
-			messageProccess();
-		
-	}
-	
-	/**
-	 * spracuje kompletnú správu po prijatí
-	 */
-	private void messageProccess() {
-		switch(messages.get(0).getType()){
-			case MessageManager.MESSAGE_TEXT :
-				parent.getParent().recieveMessage(getText());				
-				break;
-			case MessageManager.MESSAGE_WELCOME :
-				parent.proccessWelcomeMessage(getText());
-				break;
-			case MessageManager.MESSAGE_FILE :
-				parent.proccessFileMessage(getText(), getFileName());
-		}
+		recievePart(msg);
 	}
 
 	public Message(String message, MessageManager parent, int id, byte messageType){
@@ -67,6 +35,7 @@ public class Message {
 			parent.getParent().getConnection().write(new String(msg.getData()));
 		}
 	}
+	
 	public Message(File file, MessageManager parent, int id) {
 		this.parent = parent;
 		this.id = id;
@@ -90,6 +59,24 @@ public class Message {
 		} 
 	}
 
+
+	
+	/**
+	 * spracuje kompletnú správu po prijatí
+	 */
+	private void messageProccess() {
+		switch(messages.get(0).getType()){
+			case MessageManager.MESSAGE_TEXT :
+				parent.getParent().recieveMessage(getText());				
+				break;
+			case MessageManager.MESSAGE_WELCOME :
+				parent.proccessWelcomeMessage(getText());
+				break;
+			case MessageManager.MESSAGE_FILE :
+				parent.proccessFileMessage(getText(), fileName);
+		}
+	}
+	
 	/**
 	 * Rozdelí hlavièku podla velkosi uvedenej v argumente
 	 * @param message
@@ -114,6 +101,9 @@ public class Message {
 		if(!messages.containsKey(msg.getOrder()))
 			messages.put(msg.getOrder(), msg);
 		
+		if(msg.getType() == MessageManager.MESSAGE_FILE && msg.getOrder() == 0)
+			this.fileName = msg.getFileName();
+		
 		if(isComplete())
 			messageProccess();
 	}
@@ -128,14 +118,11 @@ public class Message {
 			res += messages.get(i).getText();
 		return res;
 	}
-	
-	private String getFileName(){
-		return messages.get(0).getFileName();
-	}
 
 	/**
 	 * skontroluje èi je správa prijatá
 	 * @return
 	 */
 	private boolean isComplete() {return messages.size() == parts;}
+	public int getId() {return id;}
 }

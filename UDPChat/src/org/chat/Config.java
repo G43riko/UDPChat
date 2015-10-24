@@ -7,4 +7,5 @@ public class Config {
 	
 	public final static int CHAT_TOTAL_MAX_MSG_SIZE = 1000;
 	public final static int CHAT_DEFAULT_MSG_SIZE 	= 3;
+	public final static int CHAT_CRC_LENGTH			= 8;
 }

@@ -10,34 +10,19 @@ import org.chat.message.MessageManager;
 import org.chat.utils.Log;
 
 public class UDPChat {
-	private Gui gui = new Gui(this); 
-	private Connectionable connection;
+	private Gui 			gui 		= new Gui(this); 
+	private Connectionable 	connection;
+	private MessageManager 	messages 	= new MessageManager(this);
+	
+	private String 	login;
+	private String 	port;
+	private String 	ip;
+	private String 	oponenName;
+	private long 	lastContact;
 	private boolean connected;
-	
-	private MessageManager messages = new MessageManager(this);
-	
-	private String login;
-	private String port;
-	private String ip;
-	
-	private String oponenName;
-	
-	public String getOponenName() {
-		return oponenName;
-	}
-
-	public void setOponenName(String oponenName) {
-		this.oponenName = oponenName;
-	}
-	private long lastContact;
-	//private int maxMsgLenght = Config.CHAT_DEFAULT_MSG_SIZE;
 
 	public UDPChat(){
 		Log.write("zaèal konštruktor objektu UDPChat", Log.CONSTRUCTORS);
-		
-		gui.showLoginView();
-		//messages.createMessage("abcdefghe");
-		
 		Log.write("skonèil konštruktor objektu UDPChat", Log.CONSTRUCTORS);
 	}
 
@@ -54,20 +39,18 @@ public class UDPChat {
 
 	public void start(String login, String ip, String port, boolean isHost) {
 		this.login = login;
-		this.ip = ip;
-		this.port = port;
-		
+		this.port  = port;
+		this.ip    = ip;
 		connection = isHost ? new Server(this) : new Client(this); 
 		
-		//sendMessage("", Server.CLIENT_CONNECT);
 		if(!isHost)
 			messages.createWelcomeMessage();
-		
 		
 		gui.showChatView(login);
 	}
 
 	public void recieveMessage(String message){
+		lastContact = System.currentTimeMillis();
 		gui.appendText(message, true);
 	}
 	
@@ -76,13 +59,15 @@ public class UDPChat {
 			return;
 		gui.appendText(text, false);
 		messages.createTextMessage(text);
-		//connection.write(text);
 	}
-	
 
 	public void sendFile(File file) {
 		gui.appendText("Odoslal sa súbor: " + file.getName(), false);
 		messages.createFileMessage(file);
+	}
+	
+	public void setOponenName(String oponenName) {
+		this.oponenName = oponenName;
 	}
 	
 	public boolean isConnected() {return connected;}
@@ -90,6 +75,7 @@ public class UDPChat {
 
 	public int getMaxMsgLenght() {return gui.getMaxSize();}
 	public int getPort() {return Integer.valueOf(port);}
+	public String getOponenName() {return oponenName;}
 	public String getLogin() {return login;}
 	public String getIp() {return ip;}
 	public Connectionable getConnection() {return connection;}

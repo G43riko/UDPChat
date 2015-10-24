@@ -39,12 +39,10 @@ public class Gui extends JFrame{
 		public void windowOpened(WindowEvent e) {}
 	};
 	
-	private UDPChat parent;
-
-	private JPanel contentPanel;
-	
-	private LoginPanel login = new LoginPanel(this);
-	private ChatPanel  chat  = new ChatPanel(this); 
+	private UDPChat 	parent;
+	private JPanel 		contentPanel	= new JPanel();
+	private LoginPanel 	login 			= new LoginPanel(this);
+	private ChatPanel  	chat  			= new ChatPanel(this); 
 	
 	//CONSTRUCTORS
 	
@@ -56,9 +54,11 @@ public class Gui extends JFrame{
 		
 		addWindowListener(onWindowChange);
 		
-		contentPanel = new JPanel();
 		contentPanel.setLayout(new BorderLayout());
 		add(contentPanel);
+		
+		
+		showLoginView();
 	}
 	
 	//OTHERS

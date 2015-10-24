@@ -1,35 +1,42 @@
 package org.chat.message;
 
+import org.chat.utils.Log;
 import org.chat.utils.Utils;
 
 public class MessagePart {
 	private int 	id;
-	private int 	messagesNumber;
-	private int 	messageOrder;
+	private int 	number;
+	private int 	order;
 	private int 	messageSize;
-	private byte 	messageType;
+	private byte 	type;
 	private byte[] 	data;
 	private String 	text;
 	private String 	qrc;
 	private String 	fileName;
-	private boolean okey = false;
+//	private boolean okey = false;
 	private long 	sendTime = System.currentTimeMillis();
 	//boolean send;
 	
 	//CONSTRUCTORS
 
-	public MessagePart(String text, String fileName, int id, int messagesNumber, int messageOrder, byte messageType) {
-		this.messagesNumber = messagesNumber;
-		this.messageOrder = messageOrder;
-		this.messageType = messageType;
+	public MessagePart(String text, String fileName, int id, int number, int order, byte type) {
+		this.number = number;
+		this.order = order;
+		this.type = type;
 		this.fileName = fileName;
 		this.text = text;
 		this.id = id;
 		
-		System.out.println("n·zov s˙boru je: " + fileName);
-		data = createHeader(id, messagesNumber, messageOrder, messageType, fileName);
+		
+		data = createHeader(id, number, order, type, fileName);
 		if(text != null)
 			data = Utils.concatenate(data, text.getBytes());
+		
+
+		Log.write("Vytvorila sa message part, filename: " + fileName 
+										 + ", order: " + order 
+										 + ", type: " + type +" a v nej su data: " + new String(data), Log.FILE_MESSAGE);
+		
 	}
 
 	//id spravy, pocet sprav,cislo spravy, velkosù spr·vy, typ spravy, [velkosù nazvu suboru, nazov suboru]
@@ -37,15 +44,6 @@ public class MessagePart {
 //	@Override
 //	public String toString() {
 //		return messageType + " - " + messageOrder + "/" + messagesNumber + " : " + text;
-//	}
-	
-//	
-//	public MessagePart(String text, String name, int id, int size, int order, byte messageFile) {
-//		this.messagesNumber = messagesNumber;
-//		this.messageOrder = messageOrder;
-//		this.messageType = messageType;
-//		this.text = text;
-//		this.id = id;
 //	}
 
 	/**
@@ -72,13 +70,13 @@ public class MessagePart {
 	
 	//GETTERS
 
-	public String getText() {return text.substring(1, text.length());}
-	public String getFileName() {return fileName;}
-	public int getId() {return id;}
-	public int getOrder() {return messageOrder;}
-	public int getNumber() {return messagesNumber;}
-	public byte[] getData() {return data;}
-	public byte getType() {return messageType;}
+	public String 	getText() {if(text == null) return ""; return text.substring(1, text.length());}
+	public String 	getFileName() {return fileName;}
+	public int 		getId() {return id;}
+	public int 		getOrder() {return order;}
+	public int 		getNumber() {return number;}
+	public byte[] 	getData() {return data;}
+	public byte 	getType() {return type;}
 
 }
 

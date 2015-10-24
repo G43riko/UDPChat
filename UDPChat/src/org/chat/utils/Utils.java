@@ -25,6 +25,36 @@ public class Utils {
 	    return c;
 	}
 	
+	public static String getBytesOfInt(int number){
+		return String.format("%8s", Integer.toBinaryString(number & 0xFF)).replace(' ', '0');
+	}
+	
+	public static void drawByteArray(byte[] array){
+		for(byte b : array)
+			System.out.print(b + ", ");
+		
+		System.out.println("");
+	}
+	
+	public static String getBitsFromByteArray(byte[] array){
+		StringBuilder result = new StringBuilder();
+		for(byte b : array)
+			result.append(getBytesOfInt((int)b));
+		
+		return result.toString();
+	}
+	
+	public static byte[] getBitsFromString(String s){
+		byte[] sArray = s.getBytes();
+		for(int i=0 ; i<s.length() ; i++)
+			if(sArray[i] == 48)
+				sArray[i] = 0;
+			else if(sArray[i] == 49)
+				sArray[i] = 1;
+		
+		return sArray;
+	}
+	
 	public static void sleep(int ms){
 		try {
 			Thread.sleep(ms);

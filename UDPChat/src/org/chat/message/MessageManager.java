@@ -3,13 +3,11 @@ package org.chat.message;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 
 import org.chat.UDPChat;
-import org.chat.core.User;
 import org.chat.utils.IDGenerator;
 import org.chat.utils.Log;
 import org.chat.utils.Utils;
@@ -22,7 +20,6 @@ public class MessageManager {
 	public final static byte MESSAGE_WELCOME	= 5;
 	
 	private HashMap<Integer, Message> messages = new HashMap<Integer, Message>();
-	private HashMap<String, User> users = new HashMap<String, User>(); 
 	private UDPChat parent;
 	//id spravy, pocet sprav,cislo spravy, velkosù spr·vy, typ spravy, [velkosù nazvu suboru, nazov suboru]
 
@@ -38,22 +35,22 @@ public class MessageManager {
 	 * @return
 	 */
 	private MessagePart createMessagePart(byte[] data){
-		if(data[12] == MESSAGE_FILE){
+		int order = Utils.getInt(Arrays.copyOfRange(data, 8, 12));
+		if(data[12] == MESSAGE_FILE && order == 0){
 			int fileNameLengh = Utils.getInt(Arrays.copyOfRange(data, 13, 17));
-			int order = Utils.getInt(Arrays.copyOfRange(data, 4, 8));
-			return new MessagePart(order == 0 ? new String(data, 12, data.length - 12) : null,
-					   			  order == 0 ? new String(Arrays.copyOfRange(data, 17, 17 + fileNameLengh)) : null,
-					   			  Utils.getInt(Arrays.copyOfRange(data, 0, 4)), 
-					   			  order, 
-					   			  Utils.getInt(Arrays.copyOfRange(data, 8, 12)),
-					   			  data[12]);
+			return new MessagePart(new String(data, 12, data.length - 12),
+					   			   new String(Arrays.copyOfRange(data, 17, 17 + fileNameLengh)),
+					   			   Utils.getInt(Arrays.copyOfRange(data, 0, 4)), 
+					   			   Utils.getInt(Arrays.copyOfRange(data, 4, 8)), 
+					   			   order,
+					   			   data[12]);
 		}
 		else
 			return new MessagePart(new String(data, 12, data.length - 12),
 								   null,
 								   Utils.getInt(Arrays.copyOfRange(data, 0, 4)), 
 								   Utils.getInt(Arrays.copyOfRange(data, 4, 8)), 
-								   Utils.getInt(Arrays.copyOfRange(data, 8, 12)), 
+								   order, 
 								   data[12]);
 	}
 	
@@ -67,6 +64,16 @@ public class MessageManager {
 		messages.put(id, new Message(message, this, id, MESSAGE_TEXT));
 	}
 	
+
+	/**
+	 * vytvorÌ spr·vu odosielajucu s˙bor 
+	 * @param file
+	 */
+	public void createFileMessage(File file) {
+		int id = IDGenerator.getId();
+		messages.put(id, new Message(file, this, id));
+	}
+	
 	/**
 	 * vytvorÌ nov˙ uvÌtaciu spr·vu
 	 */
@@ -77,12 +84,26 @@ public class MessageManager {
 
 	public void proccessWelcomeMessage(String message) {
 		String[] text = message.split(":");
-		//System.out.println("bola prijatÈ spr·va: " + message);
-		//users.put(text[0], new User(text[0]));
 		parent.setOponenName(text[0]);
 		
-		if(parent.isServer())
+		if(parent.isServer()){
 			createWelcomeMessage();
+			parent.recieveMessage("pripojil sa uûivaùel " + text[0]);
+		}
+	}
+
+	public void proccessFileMessage(String text, String fileName) {
+		text = text.replace(fileName, "").trim();
+		parent.recieveMessage("prijali ste s˙bor: " + fileName);
+		try {
+			File file = new File(fileName);
+			FileWriter fw = new FileWriter(file);
+			fw.write(text);
+			parent.recieveMessage("obsah: " + text);
+			fw.close();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
 	}
 	
 	/**
@@ -91,7 +112,7 @@ public class MessageManager {
 	 */
 	public void proccessAllRecievedMessages(String message) {
 		MessagePart msg = createMessagePart(message.getBytes());
-
+		
 		if(messages.containsKey(msg.getId()))
 			messages.get(msg.getId()).recievePart(msg);
 		else
@@ -119,22 +140,5 @@ public class MessageManager {
 	
 	public void checkFailedMessages(){
 		
-	}
-
-	public void createFileMessage(File file) {
-		int id = IDGenerator.getId();
-		messages.put(id, new Message(file, this, id));
-	}
-
-	public void proccessFileMessage(String text, String fileName) {
-		try {
-			File file = new File(fileName);
-			FileWriter fw = new FileWriter(file);
-			fw.write(text);
-			fw.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 	}
 }

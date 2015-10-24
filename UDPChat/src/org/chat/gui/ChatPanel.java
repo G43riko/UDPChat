@@ -19,17 +19,17 @@ import org.chat.core.Server;
 public class ChatPanel extends Panel{
 	private static final long serialVersionUID = 1L;
 
-	private Gui parent;
-	
-	private JTextArea chatHistory = new JTextArea(10,25);
-	private JTextArea message;
-	
-	private JButton sentMessage;
-	private JButton logout;
-	private JButton loadImage;
-	private JFileChooser fileChooser = new JFileChooser();
-	
-	private JSpinner maxSize;
+	private Gui 			parent;
+	private JTextArea 		chatHistory = new JTextArea(10,25);
+	private JTextArea 		message 	= new JTextArea(2, 19);
+	private JButton 		sentMessage = new JButton("Send");
+	private JButton 		logout 		= new JButton("Logout");
+	private JButton 		loadImage	= new JButton("send file");
+	private JFileChooser 	fileChooser = new JFileChooser();
+	private JSpinner 		maxSize		= new JSpinner(new SpinnerNumberModel(Config.CHAT_DEFAULT_MSG_SIZE,
+			  																  1,
+			  																  Config.CHAT_TOTAL_MAX_MSG_SIZE,
+			  																  10));
 	
 	//CONSTRUCTORS
 	
@@ -62,8 +62,8 @@ public class ChatPanel extends Panel{
 	
 	JPanel createMessagePanel(){
 		JPanel panel = new JPanel();
-		panel.add(message = new JTextArea(2, 19));
-		panel.add(sentMessage = new JButton("Send"));
+		panel.add(message);
+		panel.add(sentMessage);
 		
 		sentMessage.addActionListener(a -> {
 			parent.getChat().sendMessage(message.getText(), Server.CLIENT_SEND_MSG);
@@ -77,12 +77,6 @@ public class ChatPanel extends Panel{
 	JPanel createLogoutPanel(String name){
 		JPanel panel = new JPanel();
 		panel.setLayout(new BorderLayout());
-		//panel.add(new JLabel(name), BorderLayout.WEST);
-		
-		maxSize = new JSpinner(new SpinnerNumberModel(Config.CHAT_DEFAULT_MSG_SIZE,
-													  1,
-													  Config.CHAT_TOTAL_MAX_MSG_SIZE,
-													  10));
 		
 		
 		JPanel p = new JPanel();
@@ -90,13 +84,12 @@ public class ChatPanel extends Panel{
 		maxSize.getEditor().setPreferredSize(new Dimension(20,20));
 		p.add(maxSize);
 		panel.add(p,BorderLayout.CENTER);
-		loadImage = new JButton("send image");
 		loadImage.addActionListener(a -> {
 			fileChooser.showOpenDialog(null);
 			parent.getChat().sendFile(fileChooser.getSelectedFile());
 		});
 		panel.add(loadImage, BorderLayout.WEST);
-		panel.add(logout = new JButton("Logout"), BorderLayout.EAST);
+		panel.add(logout, BorderLayout.EAST);
 		logout.addActionListener(a -> parent.getChat().stop(true));
 		
 		return panel;
