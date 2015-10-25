@@ -57,6 +57,7 @@ public final class Client implements Connectionable{
 	public void stop() {
 		running = false;
 		socket.close();
+		socket = null;
 	}
 
 	@Override

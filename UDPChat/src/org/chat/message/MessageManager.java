@@ -3,7 +3,6 @@ package org.chat.message;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.HashMap;
 
@@ -81,7 +80,27 @@ public class MessageManager {
 		int id = IDGenerator.getId();
 		messages.put(id, new Message(parent.getLogin() + ":" + Utils.getIP(), this,  id,  MESSAGE_WELCOME));
 	}
+	
+	/**
+	 * vytvorí rozlúèkovú správu
+	 */
+	public void createLogoutMessage(){
+		int id = IDGenerator.getId();
+		messages.put(id, new Message("", this,  id,  MESSAGE_LOGOUT));
+	}
 
+	
+	public void proccessLogoutMessage() {
+		if(parent.isServer())
+			parent.recieveMessage("uivatel " + parent.getOponenName() + " sa odpojil");
+		else
+			parent.recieveMessage("server uivate " + parent.getOponenName() + " bol zrušenı");
+		parent.setOponenName(null);
+	}
+	/**
+	 * spracuje prijatú uvítaciu správu
+	 * @param message
+	 */
 	public void proccessWelcomeMessage(String message) {
 		String[] text = message.split(":");
 		parent.setOponenName(text[0]);
@@ -91,7 +110,12 @@ public class MessageManager {
 			parent.recieveMessage("pripojil sa uivael " + text[0]);
 		}
 	}
-
+	
+	/**
+	 * spracuje prijatú správu obsahujúcu súbor
+	 * @param text
+	 * @param fileName
+	 */
 	public void proccessFileMessage(String text, String fileName) {
 		text = text.replace(fileName, "").trim();
 		parent.recieveMessage("prijali ste súbor: " + fileName);
@@ -117,16 +141,6 @@ public class MessageManager {
 			messages.get(msg.getId()).recievePart(msg);
 		else
 			messages.put(msg.getId(), new Message(this, msg));
-		
-		//skontroluje spravu vdaka crc
-		
-		//ak je text
-		
-			//ak existuje sprava s id pridá ju
-		
-			//ak neexistuje vytvorı ju
-		
-		//ak je ping
 	}
 	
 	public UDPChat getParent() {return parent;}

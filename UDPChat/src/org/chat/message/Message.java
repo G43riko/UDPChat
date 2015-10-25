@@ -15,6 +15,11 @@ public class Message {
 	
 	//CONSTRUCTORS
 	
+	/**
+	 * vytvorenie príjmajucej správy ktorej je jedno o aký obsah sa 
+	 * @param parent
+	 * @param msg
+	 */
 	public Message(MessageManager parent, MessagePart msg){
 		this.parent = parent;
 		parts = msg.getNumber();
@@ -23,6 +28,13 @@ public class Message {
 		recievePart(msg);
 	}
 
+	/**
+	 * konštruktor pre vytvorenie správy odosielajúcej text
+	 * @param message
+	 * @param parent
+	 * @param id
+	 * @param messageType
+	 */
 	public Message(String message, MessageManager parent, int id, byte messageType){
 		this.parent = parent;
 		this.id = id;
@@ -36,6 +48,12 @@ public class Message {
 		}
 	}
 	
+	/**
+	 * konštruktor pre vytvorenie správy odosielajúcej súbor
+	 * @param file
+	 * @param parent
+	 * @param id
+	 */
 	public Message(File file, MessageManager parent, int id) {
 		this.parent = parent;
 		this.id = id;
@@ -74,6 +92,8 @@ public class Message {
 				break;
 			case MessageManager.MESSAGE_FILE :
 				parent.proccessFileMessage(getText(), fileName);
+			case MessageManager.MESSAGE_LOGOUT :
+				parent.proccessLogoutMessage();
 		}
 	}
 	

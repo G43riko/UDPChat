@@ -8,10 +8,21 @@ public class MainUDPChat {
 	}
 	/*
 	 * TODO
-	 * ping
-	 * save recieved file
-	 * connect out of localhost
-	 * confirm recieved messages
-	 * logout
+	 * +decode CRC
+	 * +encode CRC
+	 * +segmentation
+	 * +decode header
+	 * +encode header
+	 * +message sending
+	 * +message recieving
+	 * +file sending
+	 * +file recieving
+	 * -ping
+	 * -message checking
+	 * -save recieved file
+	 * -connection out of localhost
+	 * -confirm recieved messages
+	 * -logout
+	 * 
 	 */
 }

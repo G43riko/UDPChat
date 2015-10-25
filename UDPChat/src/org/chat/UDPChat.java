@@ -19,7 +19,6 @@ public class UDPChat {
 	private String 	ip;
 	private String 	oponenName;
 	private long 	lastContact;
-	private boolean connected;
 
 	public UDPChat(){
 		Log.write("zaèal konštruktor objektu UDPChat", Log.CONSTRUCTORS);
@@ -27,14 +26,17 @@ public class UDPChat {
 	}
 
 	public void stop(boolean sayToServer) {
-		connected = false;
+//		connected = false;
 		
-		if(sayToServer)
-			sendMessage("", Server.CLIENT_DISCONNECT);
+		messages.createLogoutMessage();
+		
+//		if(sayToServer)
+//			sendMessage("", Server.CLIENT_DISCONNECT);
 		
 		gui.showLoginView();
 
 		connection.stop();
+		connection = null;
 	}
 
 	public void start(String login, String ip, String port, boolean isHost) {
@@ -70,7 +72,7 @@ public class UDPChat {
 		this.oponenName = oponenName;
 	}
 	
-	public boolean isConnected() {return connected;}
+	public boolean isConnected() {return oponenName != null;}
 	public boolean isServer(){return connection.isServer();}
 
 	public int getMaxMsgLenght() {return gui.getMaxSize();}
