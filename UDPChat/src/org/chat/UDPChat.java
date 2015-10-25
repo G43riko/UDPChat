@@ -18,7 +18,6 @@ public class UDPChat {
 	private String 	port;
 	private String 	ip;
 	private String 	oponenName;
-	private long 	lastContact;
 
 	public UDPChat(){
 		Log.write("zaèal konštruktor objektu UDPChat", Log.CONSTRUCTORS);
@@ -52,7 +51,8 @@ public class UDPChat {
 	}
 
 	public void recieveMessage(String message){
-		lastContact = System.currentTimeMillis();
+//		lastContact = System.currentTimeMillis();
+		connection.setLastContact(System.currentTimeMillis());
 		gui.appendText(message, true);
 	}
 	
@@ -82,4 +82,9 @@ public class UDPChat {
 	public String getIp() {return ip;}
 	public Connectionable getConnection() {return connection;}
 	public MessageManager getMessageManager() {return messages;}
+
+	public void oponenetDisconect() {
+		Log.write("uživatel bol odpojený kvoli neaktivity", Log.PING_MESSAGE);
+		stop(false);
+	}
 }

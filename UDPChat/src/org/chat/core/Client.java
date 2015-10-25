@@ -11,10 +11,11 @@ import org.chat.UDPChat;
 import org.chat.utils.Log;
 
 public final class Client implements Connectionable{
-	private UDPChat parent;
-	private DatagramSocket socket;
-	private Thread listen;
-	private boolean running = true;
+	private UDPChat 		parent;
+	private DatagramSocket 	socket;
+	private Thread 			listen;
+	private boolean 		running = true;
+	public long 			lastContact;
 	
 	public Client(UDPChat parent) {
 		Log.write("zaèal konštruktor objektu Client", Log.CONSTRUCTORS);
@@ -75,6 +76,16 @@ public final class Client implements Connectionable{
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+	}
+	
+	@Override
+	public void setLastContact(long lastContact) {
+		this.lastContact = lastContact;
+	}
+
+	@Override
+	public long getLastContact() {
+		return lastContact;
 	}
 
 }

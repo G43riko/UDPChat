@@ -89,6 +89,11 @@ public class MessageManager {
 		messages.put(id, new Message("", this,  id,  MESSAGE_LOGOUT));
 	}
 
+	public void createPingMessage() {
+		int id = IDGenerator.getId();
+		messages.put(id, new Message("", this,  id,  MESSAGE_PING));
+		Log.write("odosiela sa pingovacia správa", Log.PING_MESSAGE);
+	}
 	
 	public void proccessLogoutMessage() {
 		if(parent.isServer())
@@ -154,5 +159,13 @@ public class MessageManager {
 	
 	public void checkFailedMessages(){
 		
+	}
+
+	public void proccessPingMessage() {
+		parent.getConnection().setLastContact(System.currentTimeMillis());
+		Log.write("bola prijatá pingovacia správa", Log.PING_MESSAGE);
+		
+		if(!parent.isServer())
+			createPingMessage();
 	}
 }

@@ -15,6 +15,7 @@ public interface Connectionable {
 								 address, 
 								 port);
 	}
-	
+	public void setLastContact(long time);
+	public long getLastContact();
 }
 

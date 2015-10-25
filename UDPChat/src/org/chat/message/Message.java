@@ -92,8 +92,12 @@ public class Message {
 				break;
 			case MessageManager.MESSAGE_FILE :
 				parent.proccessFileMessage(getText(), fileName);
+				break;
 			case MessageManager.MESSAGE_LOGOUT :
 				parent.proccessLogoutMessage();
+				break;
+			case MessageManager.MESSAGE_PING :
+				parent.proccessPingMessage();
 		}
 	}
 	

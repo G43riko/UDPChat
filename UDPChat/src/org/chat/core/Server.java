@@ -9,6 +9,7 @@ import java.net.SocketException;
 import org.chat.Config;
 import org.chat.UDPChat;
 import org.chat.utils.Log;
+import org.chat.utils.Utils;
 
 public final class Server implements Connectionable{
 	public static final byte CLIENT_SEND_MSG = 0;
@@ -19,10 +20,13 @@ public final class Server implements Connectionable{
 	public static final byte CLIENT_RECIEVE_MSG_OK = 5;
 	public static final byte CLIENT_RECIEVE_MSG_ERROR = 6;
 
-	private DatagramSocket socket;
-	private UDPChat parent;
-	private Thread listen;
-	private boolean running = true;
+	private DatagramSocket 	socket;
+	private UDPChat 		parent;
+	private Thread 			listen;
+	private Thread 			check;
+	private boolean 		running = true;
+	private long 			lastContact;
+	private long 			requestTime = 0;
 	
 	
 	public Server(UDPChat parent) {
@@ -35,8 +39,33 @@ public final class Server implements Connectionable{
 		} catch (SocketException e) {
 			e.printStackTrace();
 		}
-		
 		Log.write("skonèil konštruktor objektu Server", Log.CONSTRUCTORS);
+	}
+
+	public void startMessageChecking() {
+		lastContact = System.currentTimeMillis();
+		check = new Thread(new Runnable(){
+			public void run() {
+				while(running){
+					if(System.currentTimeMillis() - lastContact > Config.PING_CHECKING_TIME){
+						if(requestTime == 0){
+							requestTime = System.currentTimeMillis();
+							parent.getMessageManager().createPingMessage();
+						}
+						else if(System.currentTimeMillis() - requestTime > Config.PING_WAITING_TIME){
+							parent.oponenetDisconect();
+							requestTime = 0;
+						}
+					}
+					else
+						if(requestTime > 0)
+							requestTime = 0;
+					
+					Utils.sleep(Config.PING_LOOP_FREQUENCY);
+				}
+			}
+		});
+		check.start();
 	}
 
 	public void stop() {
@@ -80,9 +109,20 @@ public final class Server implements Connectionable{
 	
 	private void proccessMessage(String message){
 		Log.write("server prijal správu " + message, Log.CONNECTION);
+		startMessageChecking();
 		parent.getMessageManager().proccessAllRecievedMessages(message);
 	}
 
 	@Override
 	public boolean isServer() {return true;}
+
+	@Override
+	public void setLastContact(long lastContact) {
+		this.lastContact = lastContact;
+	}
+
+	@Override
+	public long getLastContact() {
+		return lastContact;
+	}
 }
