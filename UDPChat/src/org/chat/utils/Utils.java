@@ -59,7 +59,7 @@ public class Utils {
 		try {
 			Thread.sleep(ms);
 		} catch (InterruptedException e) {
-			e.printStackTrace();
+			Log.write("nepodarilo sa uspaù vl·kno", e, Log.EXCEPTIONS);
 		}
 	}
 
@@ -67,7 +67,7 @@ public class Utils {
 		try {
 			return InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {
-			e.printStackTrace();
+			Log.write("nepodarilo sa zÌskaù adresu localhostu", e, Log.EXCEPTIONS);
 		}
 		return "Error";
 	}

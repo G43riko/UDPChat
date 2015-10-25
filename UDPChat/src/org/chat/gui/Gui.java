@@ -9,6 +9,7 @@ import javax.swing.JPanel;
 
 import org.chat.Config;
 import org.chat.UDPChat;
+import org.chat.utils.Log;
 
 public class Gui extends JFrame{
 	private static final long serialVersionUID = 1L;
@@ -47,6 +48,7 @@ public class Gui extends JFrame{
 	//CONSTRUCTORS
 	
 	public Gui(UDPChat chat){
+		Log.write("zaèal konštruktor objektu Gui", Log.CONSTRUCTORS);
 		parent = chat;
 		
 		setTitle(Config.GUI_TITLE);
@@ -59,6 +61,7 @@ public class Gui extends JFrame{
 		
 		
 		showLoginView();
+		Log.write("skonèil konštruktor objektu Gui", Log.CONSTRUCTORS);
 	}
 	
 	//OTHERS

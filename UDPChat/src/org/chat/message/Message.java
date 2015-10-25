@@ -6,6 +6,8 @@ import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.chat.utils.Log;
+
 public class Message {
 	private HashMap<Integer, MessagePart> messages = new HashMap<Integer, MessagePart>();
 	private MessageManager parent;
@@ -21,11 +23,13 @@ public class Message {
 	 * @param msg
 	 */
 	public Message(MessageManager parent, MessagePart msg){
+		Log.write("zaèal konštruktor objektu Message", Log.CONSTRUCTORS);
 		this.parent = parent;
 		parts = msg.getNumber();
 		id = msg.getId();
 		
 		recievePart(msg);
+		Log.write("skonèil konštruktor objektu Message", Log.CONSTRUCTORS);
 	}
 
 	/**
@@ -73,7 +77,7 @@ public class Message {
 				parent.getParent().getConnection().write(new String(msg.getData()));
 			}
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.write("nepodarilo sa vytvoriš správu pre odoslanie súboru", e, Log.EXCEPTIONS);
 		} 
 	}
 

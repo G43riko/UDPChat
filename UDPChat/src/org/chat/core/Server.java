@@ -37,7 +37,7 @@ public final class Server implements Connectionable{
 			socket = new DatagramSocket(parent.getPort());
 			listen();
 		} catch (SocketException e) {
-			e.printStackTrace();
+			Log.write("Nepodarilo sa vytvoriù server socket", e, Log.EXCEPTIONS);
 		}
 		Log.write("skonËil konötruktor objektu Server", Log.CONSTRUCTORS);
 	}
@@ -82,7 +82,7 @@ public final class Server implements Connectionable{
 			socket.send(outpacket);
 			Log.write("server odoslal spr·vu: " + message, Log.CONNECTION);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.write("zo servera sa epodarilo odoslaù spr·vu: " + message, e, Log.EXCEPTIONS);
 		}
 	}
 	
@@ -98,7 +98,7 @@ public final class Server implements Connectionable{
 						
 						proccessMessage(new String(inpacket.getData(), 0, inpacket.getLength()));
 					} catch (IOException e) {
-						Log.write("Server socket bol zatvoren˝", Log.EXCEPTIONS);
+						Log.write("Server socket bol zatvoren˝", e ,Log.EXCEPTIONS);
 					}
 				}
 			}
@@ -109,7 +109,7 @@ public final class Server implements Connectionable{
 	
 	private void proccessMessage(String message){
 		Log.write("server prijal spr·vu " + message, Log.CONNECTION);
-		startMessageChecking();
+		
 		parent.getMessageManager().proccessAllRecievedMessages(message);
 	}
 

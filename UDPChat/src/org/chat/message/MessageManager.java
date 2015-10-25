@@ -6,7 +6,11 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.HashMap;
 
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+
 import org.chat.UDPChat;
+import org.chat.core.Server;
 import org.chat.utils.IDGenerator;
 import org.chat.utils.Log;
 import org.chat.utils.Utils;
@@ -20,20 +24,23 @@ public class MessageManager {
 	
 	private HashMap<Integer, Message> messages = new HashMap<Integer, Message>();
 	private UDPChat parent;
-	//id spravy, pocet sprav,cislo spravy, velkosù spr·vy, typ spravy, [velkosù nazvu suboru, nazov suboru]
 
+	//CONTRUCTORS
+	
 	public MessageManager(UDPChat parent) {
 		Log.write("zaËal konötruktor objektu MessageManager", Log.CONSTRUCTORS);
 		this.parent = parent;
 		Log.write("skonËil konötruktor objektu MessageManager", Log.CONSTRUCTORS);
 	}
 	
+	//OTHERS
+	
 	/**
 	 * spracuje Ëiastkov˙ spr·vu a vytvorÌ s nej MessagePart
 	 * @param data
 	 * @return
 	 */
-	private MessagePart createMessagePart(byte[] data){
+	private MessagePart parseHeader(byte[] data){
 		int order = Utils.getInt(Arrays.copyOfRange(data, 8, 12));
 		if(data[12] == MESSAGE_FILE && order == 0){
 			int fileNameLengh = Utils.getInt(Arrays.copyOfRange(data, 13, 17));
@@ -53,6 +60,7 @@ public class MessageManager {
 								   data[12]);
 	}
 	
+	//CREATORS
 	
 	/**
 	 * vytvorÌ nov˙ textuv˙ spr·vu 
@@ -63,7 +71,6 @@ public class MessageManager {
 		messages.put(id, new Message(message, this, id, MESSAGE_TEXT));
 	}
 	
-
 	/**
 	 * vytvorÌ spr·vu odosielajucu s˙bor 
 	 * @param file
@@ -95,6 +102,8 @@ public class MessageManager {
 		Log.write("odosiela sa pingovacia spr·va", Log.PING_MESSAGE);
 	}
 	
+	//PROCCESSORS
+	
 	public void proccessLogoutMessage() {
 		if(parent.isServer())
 			parent.recieveMessage("uûivatel " + parent.getOponenName() + " sa odpojil");
@@ -112,6 +121,7 @@ public class MessageManager {
 		
 		if(parent.isServer()){
 			createWelcomeMessage();
+			((Server)parent.getConnection()).startMessageChecking();
 			parent.recieveMessage("pripojil sa uûivaùel " + text[0]);
 		}
 	}
@@ -125,13 +135,19 @@ public class MessageManager {
 		text = text.replace(fileName, "").trim();
 		parent.recieveMessage("prijali ste s˙bor: " + fileName);
 		try {
-			File file = new File(fileName);
-			FileWriter fw = new FileWriter(file);
-			fw.write(text);
-			parent.recieveMessage("obsah: " + text);
-			fw.close();
+			String message = "bol priajat˝ s˙bor " + fileName + ", ûel·te si ho uloûiù??";
+			JFileChooser fc = new JFileChooser();
+			if(JOptionPane.showConfirmDialog(parent.getGui(), message) == JOptionPane.YES_OPTION){
+				fc.showSaveDialog(parent.getGui());
+				File file = fc.getSelectedFile();
+				FileWriter fw = new FileWriter(file);
+				fw.write(text);
+				fw.close();
+				
+			}
+				
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.write("nepodarilo sa spracovaù prijat˝ s˙bor", e, Log.EXCEPTIONS);
 		}
 	}
 	
@@ -140,27 +156,17 @@ public class MessageManager {
 	 * @param message
 	 */
 	public void proccessAllRecievedMessages(String message) {
-		MessagePart msg = createMessagePart(message.getBytes());
+		MessagePart msg = parseHeader(message.getBytes());
 		
 		if(messages.containsKey(msg.getId()))
 			messages.get(msg.getId()).recievePart(msg);
 		else
 			messages.put(msg.getId(), new Message(this, msg));
 	}
-	
-	public UDPChat getParent() {return parent;}
-	
-	//check client status
-	//pings
 
-	public void setPingMessage(){
-		
-	}
-	
-	public void checkFailedMessages(){
-		
-	}
-
+	/** 
+	 * spravuje prijat˙ spr·vu obsahujucu kontrolu o pripojenÌ
+	 */
 	public void proccessPingMessage() {
 		parent.getConnection().setLastContact(System.currentTimeMillis());
 		Log.write("bola prijat· pingovacia spr·va", Log.PING_MESSAGE);
@@ -168,4 +174,8 @@ public class MessageManager {
 		if(!parent.isServer())
 			createPingMessage();
 	}
+
+	//GETTERS
+	
+	public UDPChat getParent() {return parent;}
 }

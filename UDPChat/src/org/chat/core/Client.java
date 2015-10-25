@@ -14,8 +14,8 @@ public final class Client implements Connectionable{
 	private UDPChat 		parent;
 	private DatagramSocket 	socket;
 	private Thread 			listen;
-	private boolean 		running = true;
-	public long 			lastContact;
+	private boolean 		running 	= true;
+	public long 			lastContact = System.currentTimeMillis();
 	
 	public Client(UDPChat parent) {
 		Log.write("zaËal konötruktor objektu Client", Log.CONSTRUCTORS);
@@ -24,7 +24,7 @@ public final class Client implements Connectionable{
 			socket = new DatagramSocket(parent.getPort() + 1);
 			listen();
 		} catch (SocketException e) {
-			e.printStackTrace();
+			Log.write("Nepodarilo sa vytvoriù client socket", e, Log.EXCEPTIONS);
 		}
 		Log.write("skonËil konötruktor objektu Client", Log.CONSTRUCTORS);
 	}
@@ -41,7 +41,7 @@ public final class Client implements Connectionable{
 						
 						proccessMessage(new String(inpacket.getData(), 0, inpacket.getLength()));
 					} catch (IOException e) {
-						Log.write("Client socket bol zatvoren˝", Log.EXCEPTIONS);
+						Log.write("Client socket bol zatvoren˝",e,  Log.EXCEPTIONS);
 					}
 				}
 			}
@@ -61,8 +61,6 @@ public final class Client implements Connectionable{
 		socket = null;
 	}
 
-	@Override
-	public boolean isServer() {return false;}
 
 	@Override
 	public void write(String message){
@@ -72,20 +70,17 @@ public final class Client implements Connectionable{
 												 parent.getPort()) ;
 			
 			socket.send(outpacket);
-			Log.write("server odoslal spr·vu: " + message, Log.CONNECTION);
+			Log.write("client odoslal spr·vu: " + message, Log.CONNECTION);
 		} catch (IOException e) {
-			e.printStackTrace();
+			Log.write("s klienta sa epodarilo odoslaù spr·vu: " + message, e, Log.EXCEPTIONS);
 		}
 	}
 	
 	@Override
-	public void setLastContact(long lastContact) {
-		this.lastContact = lastContact;
-	}
+	public void setLastContact(long lastContact) {this.lastContact = lastContact;}
 
 	@Override
-	public long getLastContact() {
-		return lastContact;
-	}
+	public boolean isServer() {return false;}
+	public long getLastContact() {return lastContact;}
 
 }

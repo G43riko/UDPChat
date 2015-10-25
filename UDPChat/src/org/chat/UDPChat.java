@@ -36,6 +36,7 @@ public class UDPChat {
 
 		connection.stop();
 		connection = null;
+		Log.printLogs();
 	}
 
 	public void start(String login, String ip, String port, boolean isHost) {
@@ -82,9 +83,11 @@ public class UDPChat {
 	public String getIp() {return ip;}
 	public Connectionable getConnection() {return connection;}
 	public MessageManager getMessageManager() {return messages;}
+	public Gui getGui() {return gui;}
 
 	public void oponenetDisconect() {
 		Log.write("uživatel bol odpojený kvoli neaktivity", Log.PING_MESSAGE);
 		stop(false);
 	}
+
 }

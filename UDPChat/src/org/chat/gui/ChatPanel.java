@@ -15,6 +15,7 @@ import javax.swing.SpinnerNumberModel;
 
 import org.chat.Config;
 import org.chat.core.Server;
+import org.chat.utils.Log;
 
 public class ChatPanel extends Panel{
 	private static final long serialVersionUID = 1L;
@@ -34,7 +35,9 @@ public class ChatPanel extends Panel{
 	//CONSTRUCTORS
 	
 	public ChatPanel(Gui parent){
+		Log.write("zaèal konštruktor objektu ChatPanel", Log.CONSTRUCTORS);
 		this.parent = parent;
+		Log.write("skonèil konštruktor objektu ChatPanel", Log.CONSTRUCTORS);
 	}
 	
 	//OTHERS

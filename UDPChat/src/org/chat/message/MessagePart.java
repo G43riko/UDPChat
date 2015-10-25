@@ -1,6 +1,5 @@
 package org.chat.message;
 
-import org.chat.utils.Log;
 import org.chat.utils.Utils;
 
 public class MessagePart {
@@ -31,12 +30,6 @@ public class MessagePart {
 		data = createHeader(id, number, order, type, fileName);
 		if(text != null)
 			data = Utils.concatenate(data, text.getBytes());
-		
-
-		Log.write("Vytvorila sa message part, filename: " + fileName 
-										 + ", order: " + order 
-										 + ", type: " + type +" a v nej su data: " + new String(data), Log.FILE_MESSAGE);
-		
 	}
 
 	//id spravy, pocet sprav,cislo spravy, velkosù spr·vy, typ spravy, [velkosù nazvu suboru, nazov suboru]

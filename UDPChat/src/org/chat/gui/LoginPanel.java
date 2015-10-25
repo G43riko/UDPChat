@@ -10,6 +10,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 
 import org.chat.Config;
+import org.chat.utils.Log;
 
 public class LoginPanel extends Panel{
 	private static final long serialVersionUID = 1L;
@@ -25,7 +26,9 @@ public class LoginPanel extends Panel{
 	//CONSTRUCTORS
 	
 	public LoginPanel(Gui parent){
+		Log.write("zaèal konštruktor objektu LoginPanel", Log.CONSTRUCTORS);
 		this.parent = parent;
+		Log.write("skonèil konštruktor objektu LoginPanel", Log.CONSTRUCTORS);
 	}
 	
 	//CREATORS

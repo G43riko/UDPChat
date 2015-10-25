@@ -13,16 +13,18 @@ public class MainUDPChat {
 	 * +segmentation
 	 * +decode header
 	 * +encode header
+	 * +login gui
+	 * +chat gui
 	 * +message sending
 	 * +message recieving
 	 * +file sending
 	 * +file recieving
-	 * -ping
+	 * +ping
+	 * +logging system
+	 * +logout
+	 * +save recieved file
 	 * -message checking
-	 * -save recieved file
 	 * -connection out of localhost
 	 * -confirm recieved messages
-	 * -logout
-	 * 
 	 */
 }
