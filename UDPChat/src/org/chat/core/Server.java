@@ -30,16 +30,16 @@ public final class Server implements Connectionable{
 	
 	
 	public Server(UDPChat parent) {
-		Log.write("zaËal konötruktor objektu Server", Log.CONSTRUCTORS);
+		Log.write("za√®al kon≈°truktor objektu Server", Log.CONSTRUCTORS);
 		this.parent = parent;
 		
 		try {
 			socket = new DatagramSocket(parent.getPort());
 			listen();
 		} catch (SocketException e) {
-			Log.write("Nepodarilo sa vytvoriù server socket", e, Log.EXCEPTIONS);
+			Log.write("Nepodarilo sa vytvoriÔøΩ server socket", e, Log.EXCEPTIONS);
 		}
-		Log.write("skonËil konötruktor objektu Server", Log.CONSTRUCTORS);
+		Log.write("skon√®il kon≈°truktor objektu Server", Log.CONSTRUCTORS);
 	}
 
 	public void startMessageChecking() {
@@ -76,16 +76,13 @@ public final class Server implements Connectionable{
 	public void write(String message){
 		try {
 			DatagramPacket outpacket = getPacket(message, 
-												 InetAddress.getByName("localhost"), 
+												 InetAddress.getByName(parent.getIp()), 
 												 parent.getPort() + 1);
 			
-			if(parent.getIp() != outpacket.getAddress().getHostName())
-				parent.setIp(outpacket.getAddress().getHostName());
-			
 			socket.send(outpacket);
-			Log.write("server odoslal spr·vu: " + message, Log.CONNECTION);
+			Log.write("server odoslal spr√°vu: " + message, Log.CONNECTION);
 		} catch (IOException e) {
-			Log.write("zo servera sa epodarilo odoslaù spr·vu: " + message, e, Log.EXCEPTIONS);
+			Log.write("zo servera sa epodarilo odoslaÔøΩ spr√°vu: " + message, e, Log.EXCEPTIONS);
 		}
 	}
 	
@@ -99,9 +96,13 @@ public final class Server implements Connectionable{
 						DatagramPacket inpacket = new DatagramPacket(block, block.length);
 						socket.receive(inpacket);
 						
+
+						if(parent.getIp() != inpacket.getAddress().getHostName())
+							parent.setIp(inpacket.getAddress().getHostName());
+						
 						proccessMessage(new String(inpacket.getData(), 0, inpacket.getLength()));
 					} catch (IOException e) {
-						Log.write("Server socket bol zatvoren˝", e ,Log.EXCEPTIONS);
+						Log.write("Server socket bol zatvoren√Ω", e ,Log.EXCEPTIONS);
 					}
 				}
 			}
@@ -111,7 +112,7 @@ public final class Server implements Connectionable{
 	}
 	
 	private void proccessMessage(String message){
-		Log.write("server prijal spr·vu " + message, Log.CONNECTION);
+//		Log.write("server prijal spr√°vu " + message, Log.CONNECTION);
 		
 		parent.getMessageManager().proccessAllRecievedMessages(message);
 	}

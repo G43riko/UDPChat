@@ -17,6 +17,7 @@ public class UDPChat {
 	private String 	login;
 	private String 	port;
 	public void setIp(String ip) {
+		System.out.println("ip: " + ip);
 		this.ip = ip;
 	}
 
@@ -41,7 +42,7 @@ public class UDPChat {
 
 		connection.stop();
 		connection = null;
-		Log.printLogs();
+//		Log.printLogs(                                                                                                                                   );
 	}
 
 	public void start(String login, String ip, String port, boolean isHost) {

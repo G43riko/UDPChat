@@ -99,7 +99,9 @@ public class ChatPanel extends Panel{
 		panel.add(p,BorderLayout.CENTER);
 		loadImage.addActionListener(a -> {
 			fileChooser.showOpenDialog(null);
-			parent.getChat().sendFile(fileChooser.getSelectedFile());
+			
+			if(fileChooser.getSelectedFile() != null)
+				parent.getChat().sendFile(fileChooser.getSelectedFile());
 		});
 		panel.add(loadImage, BorderLayout.WEST);
 		panel.add(logout, BorderLayout.EAST);
