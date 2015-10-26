@@ -3,18 +3,16 @@ package org.chat.message;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.stream.Collectors;
 
 import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 
 import org.chat.UDPChat;
+import org.chat.core.Server;
 import org.chat.utils.IDGenerator;
 import org.chat.utils.Log;
-import org.chat.utils.StringXORer;
 import org.chat.utils.Utils;
 
 public class MessageManager {
@@ -36,10 +34,6 @@ public class MessageManager {
 	}
 	
 	//OTHERS
-	
-	public void messageLoop(){
-		
-	}
 	
 	/**
 	 * spracuje èiastkovú správu a vytvorí s nej MessagePart
@@ -112,9 +106,9 @@ public class MessageManager {
 	
 	public void proccessLogoutMessage() {
 		if(parent.isServer())
-			parent.recieveMessage("uivatel " + parent.getOponenName() + " sa odpojil");
+			parent.recieveMessage("uivatel " + parent.getOponentName() + " sa odpojil");
 		else
-			parent.recieveMessage("server uivate " + parent.getOponenName() + " bol zrušenı");
+			parent.recieveMessage("server uivate " + parent.getOponentName() + " bol zrušenı");
 		parent.setOponenName(null);
 	}
 	/**
@@ -127,7 +121,7 @@ public class MessageManager {
 		
 		if(parent.isServer()){
 			createWelcomeMessage();
-//			((Server)parent.getConnection()).startMessageChecking();
+			((Server)parent.getConnection()).startMessageChecking();
 			parent.recieveMessage("pripojil sa uivael " + text[0]);
 		}
 	}
@@ -162,21 +156,12 @@ public class MessageManager {
 	 * @param message
 	 */
 	public void proccessAllRecievedMessages(String message) {
-		if(!StringXORer.checkMessage(message)){
-			createFixMessage(message);
-			return;
-		}
-		
 		MessagePart msg = parseHeader(message.getBytes());
 		
 		if(messages.containsKey(msg.getId()))
 			messages.get(msg.getId()).recievePart(msg);
 		else
 			messages.put(msg.getId(), new Message(this, msg));
-	}
-
-	private void createFixMessage(String message) {
-		
 	}
 
 	/** 
@@ -193,15 +178,4 @@ public class MessageManager {
 	//GETTERS
 	
 	public UDPChat getParent() {return parent;}
-
-	public void checkMessages() {
-		ArrayList<Message> list = messages.entrySet()
-										  .stream()
-										  .map(a -> a.getValue())
-										  .filter(a ->  !a.isChecked())
-										  .collect(Collectors.toCollection(ArrayList::new));
-		
-//		list.stream()
-//			.filter(a -> a.isSend())
-	}
 }

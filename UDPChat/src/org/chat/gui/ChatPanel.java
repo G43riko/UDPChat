@@ -58,8 +58,7 @@ public class ChatPanel extends Panel{
 		JScrollPane scroll = new JScrollPane(chatHistory);
 		
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-		
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 		panel.add(scroll);
 
 		return panel;
@@ -67,7 +66,16 @@ public class ChatPanel extends Panel{
 	
 	JPanel createMessagePanel(){
 		JPanel panel = new JPanel();
-		panel.add(message);
+		
+		message.setLineWrap(true);
+		
+		JScrollPane scroll = new JScrollPane(message);
+		
+		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+		panel.add(scroll);
+		
+//		panel.add(message);
 		panel.add(sentMessage);
 		
 		sentMessage.addActionListener(a -> {
@@ -86,19 +94,16 @@ public class ChatPanel extends Panel{
 		
 		JPanel p = new JPanel();
 		p.add(new JLabel("message size: "));
-		p.add(maxSize);
-		
 		maxSize.getEditor().setPreferredSize(new Dimension(20,20));
+		p.add(maxSize);
+		panel.add(p,BorderLayout.CENTER);
 		loadImage.addActionListener(a -> {
 			fileChooser.showOpenDialog(null);
 			parent.getChat().sendFile(fileChooser.getSelectedFile());
 		});
-
-		panel.add(p,BorderLayout.CENTER);
 		panel.add(loadImage, BorderLayout.WEST);
-		
 		panel.add(logout, BorderLayout.EAST);
-		logout.addActionListener(a -> parent.getChat().stop());
+		logout.addActionListener(a -> parent.getChat().stop(true));
 		
 		return panel;
 	}

@@ -11,32 +11,36 @@ import org.chat.utils.Log;
 
 public class UDPChat {
 	private Gui 			gui 		= new Gui(this); 
-	private MessageManager 	messages 	= new MessageManager(this);
 	private Connectionable 	connection;
-	private Controller		controller	= new Controller(this);
+	private MessageManager 	messages 	= new MessageManager(this);
 	
-	private String 	oponenName;
 	private String 	login;
 	private String 	port;
-	private String 	ip;
+	public void setIp(String ip) {
+		this.ip = ip;
+	}
 
-	//CONTRUCTORS
-	
+	private String 	ip;
+	private String 	oponentName;
+	private int 	oponentPort;
+
 	public UDPChat(){
 		Log.write("zaèal konštruktor objektu UDPChat", Log.CONSTRUCTORS);
 		Log.write("skonèil konštruktor objektu UDPChat", Log.CONSTRUCTORS);
 	}
 
-	//OTHERS
-	
-	public void stop() {
+	public void stop(boolean sayToServer) {
+//		connected = false;
+		
 		messages.createLogoutMessage();
+		
+//		if(sayToServer)
+//			sendMessage("", Server.CLIENT_DISCONNECT);
 		
 		gui.showLoginView();
 
 		connection.stop();
 		connection = null;
-		controller.stop();
 		Log.printLogs();
 	}
 
@@ -50,15 +54,10 @@ public class UDPChat {
 			messages.createWelcomeMessage();
 		
 		gui.showChatView(login);
-		controller.start();
-	}
-	
-	public void oponenetDisconect() {
-		Log.write("uživatel bol odpojený kvoli neaktivity", Log.PING_MESSAGE);
-		stop();
 	}
 
 	public void recieveMessage(String message){
+//		lastContact = System.currentTimeMillis();
 		connection.setLastContact(System.currentTimeMillis());
 		gui.appendText(message, true);
 	}
@@ -75,22 +74,25 @@ public class UDPChat {
 		messages.createFileMessage(file);
 	}
 	
-	//GETTERS
+	public void setOponenName(String oponenName) {
+		this.oponentName = oponenName;
+	}
 	
-	public boolean isConnected() {return oponenName != null;}
+	public boolean isConnected() {return oponentName != null;}
 	public boolean isServer(){return connection.isServer();}
 
 	public int getMaxMsgLenght() {return gui.getMaxSize();}
 	public int getPort() {return Integer.valueOf(port);}
-	public String getOponenName() {return oponenName;}
+	public String getOponentName() {return oponentName;}
 	public String getLogin() {return login;}
 	public String getIp() {return ip;}
 	public Connectionable getConnection() {return connection;}
 	public MessageManager getMessageManager() {return messages;}
 	public Gui getGui() {return gui;}
 
-	//SETTERS
-	
-	public void setOponenName(String oponenName) {this.oponenName = oponenName;}
-	
+	public void oponenetDisconect() {
+		Log.write("uživatel bol odpojený kvoli neaktivity", Log.PING_MESSAGE);
+		stop(false);
+	}
+
 }

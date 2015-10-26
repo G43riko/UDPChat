@@ -24,7 +24,7 @@ public class Gui extends JFrame{
 		@Override
 		public void windowClosing(WindowEvent e) {
 			if(parent.isConnected())
-				parent.stop();
+				parent.stop(true);
 		}
 
 		@Override
@@ -67,7 +67,7 @@ public class Gui extends JFrame{
 	//OTHERS
 	
 	public void appendText(String txt, boolean recieve){
-		chat.appendText((recieve ? parent.getOponenName() : parent.getLogin()) + ": " + txt + "\n");
+		chat.appendText((recieve ? parent.getOponentName() : parent.getLogin()) + ": " + txt + "\n");
 	}
 	
 	//SHOWS
@@ -97,7 +97,12 @@ public class Gui extends JFrame{
 	
 	//GETTERS
 	
-	public int getMaxSize(){return chat.getMaxSize();}
-	public UDPChat getChat() {return parent;}
+	public int getMaxSize(){
+		return chat.getMaxSize();
+	}
+
+	public UDPChat getChat() {
+		return parent;
+	}
 	
 }
