@@ -98,7 +98,7 @@ public final class Server implements Connectionable{
 						
 
 						if(parent.getIp() != inpacket.getAddress().getHostName())
-							parent.setIp(inpacket.getAddress().getHostName());
+							parent.setIp(inpacket.getAddress().getHostAddress());
 						
 						proccessMessage(new String(inpacket.getData(), 0, inpacket.getLength()));
 					} catch (IOException e) {

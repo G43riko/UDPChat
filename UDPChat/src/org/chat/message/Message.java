@@ -18,22 +18,22 @@ public class Message {
 	//CONSTRUCTORS
 	
 	/**
-	 * vytvorenie prÌjmajucej spr·vy ktorej je jedno o ak˝ obsah sa 
+	 * vytvorenie pr√≠jmajucej spr√°vy ktorej je jedno o ak√Ω obsah sa 
 	 * @param parent
 	 * @param msg
 	 */
 	public Message(MessageManager parent, MessagePart msg){
-		Log.write("zaËal konötruktor objektu Message", Log.CONSTRUCTORS);
+		Log.write("za√®al kon≈°truktor objektu Message", Log.CONSTRUCTORS);
 		this.parent = parent;
 		parts = msg.getNumber();
 		id = msg.getId();
 		
 		recievePart(msg);
-		Log.write("skonËil konötruktor objektu Message", Log.CONSTRUCTORS);
+		Log.write("skon√®il kon≈°truktor objektu Message", Log.CONSTRUCTORS);
 	}
 
 	/**
-	 * konötruktor pre vytvorenie spr·vy odosielaj˙cej text
+	 * kon≈°truktor pre vytvorenie spr√°vy odosielaj√∫cej text
 	 * @param message
 	 * @param parent
 	 * @param id
@@ -53,7 +53,7 @@ public class Message {
 	}
 	
 	/**
-	 * konötruktor pre vytvorenie spr·vy odosielaj˙cej s˙bor
+	 * kon≈°truktor pre vytvorenie spr√°vy odosielaj√∫cej s√∫bor
 	 * @param file
 	 * @param parent
 	 * @param id
@@ -67,6 +67,7 @@ public class Message {
 			ArrayList<String> msgs = divideMessage(new String(data), parent.getParent().getMaxMsgLenght());
 			parts = msgs.size();
 			for(int i=0 ; i<parts ; i++){
+				System.out.println("odosiela sa " + i + "ta ƒçast suboru z " + parts);
 				MessagePart msg = new MessagePart(msgs.get(i),
 												  i == 0 ? file.getName() : null, 
 												  id, 
@@ -77,14 +78,14 @@ public class Message {
 				parent.getParent().getConnection().write(new String(msg.getData()));
 			}
 		} catch (IOException e) {
-			Log.write("nepodarilo sa vytvoriö spr·vu pre odoslanie s˙boru", e, Log.EXCEPTIONS);
+			Log.write("nepodarilo sa vytvori≈° spr√°vu pre odoslanie s√∫boru", e, Log.EXCEPTIONS);
 		} 
 	}
 
 
 	
 	/**
-	 * spracuje kompletn˙ spr·vu po prijatÌ
+	 * spracuje kompletn√∫ spr√°vu po prijat√≠
 	 */
 	private void messageProccess() {
 		switch(messages.get(0).getType()){
@@ -106,7 +107,7 @@ public class Message {
 	}
 	
 	/**
-	 * RozdelÌ hlaviËku podla velkosùi uvedenej v argumente
+	 * Rozdel√≠ hlavi√®ku podla velkosÔøΩi uvedenej v argumente
 	 * @param message
 	 * @param maxLength
 	 * @return
@@ -122,7 +123,7 @@ public class Message {
 	}
 	
 	/**
-	 * Spracuje prijat˙ spr·vu
+	 * Spracuje prijat√∫ spr√°vu
 	 * @param msg
 	 */
 	public void recievePart(MessagePart msg) {
@@ -137,7 +138,7 @@ public class Message {
 	}
 
 	/**
-	 * Vr·ti text spr·vy zloûenÌm vöetk˝ch ËastÌ spr·v 
+	 * Vr√°ti text spr√°vy zlo≈æen√≠m v≈°etk√Ωch √®ast√≠ spr√°v 
 	 * @return
 	 */
 	private String getText() {
@@ -148,7 +149,7 @@ public class Message {
 	}
 
 	/**
-	 * skontroluje Ëi je spr·va prijat·
+	 * skontroluje √®i je spr√°va prijat√°
 	 * @return
 	 */
 	private boolean isComplete() {
