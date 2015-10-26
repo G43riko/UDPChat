@@ -56,8 +56,10 @@ public class ChatPanel extends Panel{
 		chatHistory.setEditable(false);
 		
 		JScrollPane scroll = new JScrollPane(chatHistory);
+		
 		scroll.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
 		scroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
+		
 		panel.add(scroll);
 
 		return panel;
@@ -84,16 +86,19 @@ public class ChatPanel extends Panel{
 		
 		JPanel p = new JPanel();
 		p.add(new JLabel("message size: "));
-		maxSize.getEditor().setPreferredSize(new Dimension(20,20));
 		p.add(maxSize);
-		panel.add(p,BorderLayout.CENTER);
+		
+		maxSize.getEditor().setPreferredSize(new Dimension(20,20));
 		loadImage.addActionListener(a -> {
 			fileChooser.showOpenDialog(null);
 			parent.getChat().sendFile(fileChooser.getSelectedFile());
 		});
+
+		panel.add(p,BorderLayout.CENTER);
 		panel.add(loadImage, BorderLayout.WEST);
+		
 		panel.add(logout, BorderLayout.EAST);
-		logout.addActionListener(a -> parent.getChat().stop(true));
+		logout.addActionListener(a -> parent.getChat().stop());
 		
 		return panel;
 	}

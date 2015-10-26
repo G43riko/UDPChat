@@ -54,4 +54,9 @@ public class StringXORer {
        
         return out;
     }
+
+	public static boolean checkMessage(String message) {
+		// TODO Auto-generated method stub
+		return false;
+	}
 }

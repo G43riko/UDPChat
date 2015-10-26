@@ -35,9 +35,11 @@ public class LoginPanel extends Panel{
 	
 	JPanel createLoginPanel(){
 		JPanel panel = new JPanel();
+		
 		panel.add(new JLabel("Login"));
 		panel.add(login);
 		panel.add(start);
+		
 		start.addActionListener(a -> parent.getChat().start(login.getText(), 
 												  			  ip.getText(),
 												  			  port.getText(), 

@@ -24,7 +24,7 @@ public class Gui extends JFrame{
 		@Override
 		public void windowClosing(WindowEvent e) {
 			if(parent.isConnected())
-				parent.stop(true);
+				parent.stop();
 		}
 
 		@Override
@@ -97,12 +97,7 @@ public class Gui extends JFrame{
 	
 	//GETTERS
 	
-	public int getMaxSize(){
-		return chat.getMaxSize();
-	}
-
-	public UDPChat getChat() {
-		return parent;
-	}
+	public int getMaxSize(){return chat.getMaxSize();}
+	public UDPChat getChat() {return parent;}
 	
 }

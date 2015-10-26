@@ -12,4 +12,6 @@ public class Config {
 	public final static int PING_LOOP_FREQUENCY		= 500;
 	public final static int PING_WAITING_TIME		= 300;
 	public final static int PING_CHECKING_TIME		= 2000;
+	
+	public final static int MESSAGES_LOOP_FREQUENCY	= 5000;
 }

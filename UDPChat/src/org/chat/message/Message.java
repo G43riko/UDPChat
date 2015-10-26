@@ -14,6 +14,9 @@ public class Message {
 	private int id;
 	private int parts;
 	private String fileName;
+	private boolean isSendOkey = false;	//urèuje èi bola správa odoslaná v poriadku 
+	private boolean isSend;				//urèuje èi bolo odoslaná alebo prijatá
+	private boolean isChecked = false;	//urèuje èi bola skontrolovaná a èi je v poriadku
 	
 	//CONSTRUCTORS
 	
@@ -27,7 +30,7 @@ public class Message {
 		this.parent = parent;
 		parts = msg.getNumber();
 		id = msg.getId();
-		
+		isSend = false;
 		recievePart(msg);
 		Log.write("skonèil konštruktor objektu Message", Log.CONSTRUCTORS);
 	}
@@ -42,7 +45,7 @@ public class Message {
 	public Message(String message, MessageManager parent, int id, byte messageType){
 		this.parent = parent;
 		this.id = id;
-		
+		isSend = true;
 		ArrayList<String> msgs = divideMessage(message, parent.getParent().getMaxMsgLenght());
 		parts = msgs.size();
 		for(int i=0 ; i<parts ; i++){
@@ -63,7 +66,7 @@ public class Message {
 		this.id = id;
 		try {
 			byte[] data = Files.readAllBytes(file.toPath());
-			
+			isSend = true;
 			ArrayList<String> msgs = divideMessage(new String(data), parent.getParent().getMaxMsgLenght());
 			parts = msgs.size();
 			for(int i=0 ; i<parts ; i++){
@@ -151,6 +154,12 @@ public class Message {
 	 * skontroluje èi je správa prijatá
 	 * @return
 	 */
-	private boolean isComplete() {return messages.size() == parts;}
+	public boolean isComplete() {return messages.size() == parts;}
+	public boolean isSendOkey() {return isSendOkey;}
+	public boolean isChecked() {return isChecked;}
+	public boolean isSend() {return isSend;}
 	public int getId() {return id;}
+
+
+
 }

@@ -26,5 +26,6 @@ public class MainUDPChat {
 	 * -message checking
 	 * -connection out of localhost
 	 * -confirm recieved messages
+	 * -fix logout crashing
 	 */
 }

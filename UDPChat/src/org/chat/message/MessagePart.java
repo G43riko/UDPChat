@@ -6,14 +6,14 @@ public class MessagePart {
 	private int 	id;
 	private int 	number;
 	private int 	order;
-	private int 	messageSize;
+//	private int 	messageSize;
 	private byte 	type;
 	private byte[] 	data;
 	private String 	text;
-	private String 	qrc;
+//	private String 	qrc;
 	private String 	fileName;
 //	private boolean okey = false;
-	private long 	sendTime = System.currentTimeMillis();
+//	private long 	sendTime = System.currentTimeMillis();
 	//boolean send;
 	
 	//CONSTRUCTORS
@@ -31,14 +31,9 @@ public class MessagePart {
 		if(text != null)
 			data = Utils.concatenate(data, text.getBytes());
 	}
-
-	//id spravy, pocet sprav,cislo spravy, velkosù spr·vy, typ spravy, [velkosù nazvu suboru, nazov suboru]
-
-//	@Override
-//	public String toString() {
-//		return messageType + " - " + messageOrder + "/" + messagesNumber + " : " + text;
-//	}
-
+	
+	//CREATORS
+	
 	/**
 	 * posklad· hlaviËku s ˙dajov v argumente
 	 * @param id
