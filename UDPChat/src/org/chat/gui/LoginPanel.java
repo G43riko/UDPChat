@@ -53,7 +53,7 @@ public class LoginPanel extends Panel{
 		guestOption.addActionListener(a -> ip.setEnabled(guestOption.isSelected()));
 		hostOption.addActionListener(a -> {
 			ip.setEnabled(guestOption.isSelected()) ;
-			ip.setText("localhost");
+			ip.setText(Config.GUI_DEFAULT_ADRESS);
 		});
 		
 		bg.add(guestOption);

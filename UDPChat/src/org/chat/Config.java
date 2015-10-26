@@ -1,8 +1,10 @@
 package org.chat;
 
+import org.chat.utils.Utils;
+
 public class Config {
 	public final static String GUI_TITLE			= "UDP Chat";
-	public final static String GUI_DEFAULT_ADRESS 	= "127.0.01";
+	public final static String GUI_DEFAULT_ADRESS 	= Utils.getIP();
 	public final static String GUI_DEFAULT_PORT		= "1234";
 	
 	public final static int CHAT_TOTAL_MAX_MSG_SIZE = 65000; //65535

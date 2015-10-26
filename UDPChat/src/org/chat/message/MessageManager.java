@@ -28,15 +28,15 @@ public class MessageManager {
 	//CONTRUCTORS
 	
 	public MessageManager(UDPChat parent) {
-		Log.write("zaèal konštruktor objektu MessageManager", Log.CONSTRUCTORS);
+		Log.write("zaÃ¨al konÅ¡truktor objektu MessageManager", Log.CONSTRUCTORS);
 		this.parent = parent;
-		Log.write("skonèil konštruktor objektu MessageManager", Log.CONSTRUCTORS);
+		Log.write("skonÃ¨il konÅ¡truktor objektu MessageManager", Log.CONSTRUCTORS);
 	}
 	
 	//OTHERS
 	
 	/**
-	 * spracuje èiastkovú správu a vytvorí s nej MessagePart
+	 * spracuje Ã¨iastkovÃº sprÃ¡vu a vytvorÃ­ s nej MessagePart
 	 * @param data
 	 * @return
 	 */
@@ -63,7 +63,7 @@ public class MessageManager {
 	//CREATORS
 	
 	/**
-	 * vytvorí novú textuvú správu 
+	 * vytvorÃ­ novÃº textuvÃº sprÃ¡vu 
 	 * @param message
 	 */
 	public void createTextMessage(String message) {
@@ -72,7 +72,7 @@ public class MessageManager {
 	}
 	
 	/**
-	 * vytvorí správu odosielajucu súbor 
+	 * vytvorÃ­ sprÃ¡vu odosielajucu sÃºbor 
 	 * @param file
 	 */
 	public void createFileMessage(File file) {
@@ -81,7 +81,7 @@ public class MessageManager {
 	}
 	
 	/**
-	 * vytvorí novú uvítaciu správu
+	 * vytvorÃ­ novÃº uvÃ­taciu sprÃ¡vu
 	 */
 	public void createWelcomeMessage(){
 		int id = IDGenerator.getId();
@@ -89,7 +89,7 @@ public class MessageManager {
 	}
 	
 	/**
-	 * vytvorí rozlúèkovú správu
+	 * vytvorÃ­ rozlÃºÃ¨kovÃº sprÃ¡vu
 	 */
 	public void createLogoutMessage(){
 		int id = IDGenerator.getId();
@@ -99,43 +99,43 @@ public class MessageManager {
 	public void createPingMessage() {
 		int id = IDGenerator.getId();
 		messages.put(id, new Message("", this,  id,  MESSAGE_PING));
-		Log.write("odosiela sa pingovacia správa", Log.PING_MESSAGE);
+		Log.write("odosiela sa pingovacia sprÃ¡va", Log.PING_MESSAGE);
 	}
 	
 	//PROCCESSORS
 	
 	public void proccessLogoutMessage() {
 		if(parent.isServer())
-			parent.recieveMessage("uivatel " + parent.getOponentName() + " sa odpojil");
+			parent.recieveMessage("uÅ¾ivatel " + parent.getOponentName() + " sa odpojil");
 		else
-			parent.recieveMessage("server uivate " + parent.getOponentName() + " bol zrušenı");
+			parent.recieveMessage("server uÅ¾ivate " + parent.getOponentName() + " bol zruÅ¡enÃ½");
 		parent.setOponenName(null);
 	}
 	/**
-	 * spracuje prijatú uvítaciu správu
+	 * spracuje prijatÃº uvÃ­taciu sprÃ¡vu
 	 * @param message
 	 */
 	public void proccessWelcomeMessage(String message) {
 		String[] text = message.split(":");
 		parent.setOponenName(text[0]);
-		
+		parent.setIp(text[1]);
 		if(parent.isServer()){
 			createWelcomeMessage();
 			((Server)parent.getConnection()).startMessageChecking();
-			parent.recieveMessage("pripojil sa uivael " + text[0]);
+			parent.recieveMessage("pripojil sa uÅ¾ivaï¿½el " + text[0]);
 		}
 	}
 	
 	/**
-	 * spracuje prijatú správu obsahujúcu súbor
+	 * spracuje prijatÃº sprÃ¡vu obsahujÃºcu sÃºbor
 	 * @param text
 	 * @param fileName
 	 */
 	public void proccessFileMessage(String text, String fileName) {
 		text = text.replace(fileName, "").trim();
-		parent.recieveMessage("prijali ste súbor: " + fileName);
+		parent.recieveMessage("prijali ste sÃºbor: " + fileName);
 		try {
-			String message = "bol priajatı súbor " + fileName + ", eláte si ho uloi??";
+			String message = "bol priajatÃ½ sÃºbor " + fileName + ", Å¾elÃ¡te si ho uloÅ¾iï¿½??";
 			JFileChooser fc = new JFileChooser();
 			if(JOptionPane.showConfirmDialog(parent.getGui(), message) == JOptionPane.YES_OPTION){
 				fc.showSaveDialog(parent.getGui());
@@ -147,12 +147,12 @@ public class MessageManager {
 			}
 				
 		} catch (IOException e) {
-			Log.write("nepodarilo sa spracova prijatı súbor", e, Log.EXCEPTIONS);
+			Log.write("nepodarilo sa spracovaï¿½ prijatÃ½ sÃºbor", e, Log.EXCEPTIONS);
 		}
 	}
 	
 	/**
-	 * spracuje prijatú správu
+	 * spracuje prijatÃº sprÃ¡vu
 	 * @param message
 	 */
 	public void proccessAllRecievedMessages(String message) {
@@ -165,11 +165,11 @@ public class MessageManager {
 	}
 
 	/** 
-	 * spravuje prijatú správu obsahujucu kontrolu o pripojení
+	 * spravuje prijatÃº sprÃ¡vu obsahujucu kontrolu o pripojenÃ­
 	 */
 	public void proccessPingMessage() {
 		parent.getConnection().setLastContact(System.currentTimeMillis());
-		Log.write("bola prijatá pingovacia správa", Log.PING_MESSAGE);
+		Log.write("bola prijatÃ¡ pingovacia sprÃ¡va", Log.PING_MESSAGE);
 		
 		if(!parent.isServer())
 			createPingMessage();
