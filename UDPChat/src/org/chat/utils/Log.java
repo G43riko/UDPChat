@@ -5,10 +5,10 @@ import java.util.ArrayList;
 public class Log {
 	public final static boolean CONSTRUCTORS 	= false;
 	public final static boolean CONNECTION 		= false;
-	public final static boolean EXCEPTIONS 		= false;
+	public final static boolean EXCEPTIONS 		= true;
 //	public final static boolean FILE_MESSAGE 	= false;
 	public final static boolean PING_MESSAGE 	= false;
-	public final static boolean DEBUG 			= false;
+	public final static boolean DEBUG 			= true;
 	
 	private final static ArrayList<LogMessage> logs = new ArrayList<LogMessage>();
 	

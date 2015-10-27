@@ -63,5 +63,6 @@ public class MessagePart {
 	public byte[] 	getData() {return data;}
 	public byte 	getType() {return type;}
 
+
 }
 

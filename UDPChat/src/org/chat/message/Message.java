@@ -18,6 +18,7 @@ public class Message {
 	private int id;
 	private int parts;
 	private String fileName;
+	private int maxFileOrder = 0;
 	
 	//CONSTRUCTORS
 	
@@ -106,9 +107,16 @@ public class Message {
 				break;
 			case MessageManager.MESSAGE_PING :
 				parent.proccessPingMessage();
+				break;
 			case MessageManager.MESSAGE_REPAIR :
 				parent.proccessRepairMessage(getText());
+				break;
+			case MessageManager.MESSAGE_FINISH :
+				parent.proccessFinishMessage(getText());
+				break;
 		}
+		if(messages.get(0).getType() != MessageManager.MESSAGE_FINISH)
+			parent.createFinishedMessage(id);
 	}
 	
 	private ArrayList<String> divideMessage(String message, int maxLength){
@@ -128,6 +136,8 @@ public class Message {
 //			for(int i=msg.getOrder() ; i>=0 ; i--)
 //				if(!messages.containsKey(i))
 //					parent.createRepairMessage(i, msg.getId());
+			if(maxFileOrder+1 < parts)
+				parent.createRepairMessage(++maxFileOrder, msg.getId(), msg.getType());
 		}
 		
 		
@@ -161,5 +171,13 @@ public class Message {
 	@Override
 	public String toString() {
 		return "id: " + id +", parts: " + parts;
+	}
+
+	public boolean hasMessage(MessagePart msg) {
+		return messages.containsKey(msg.getOrder());
+	}
+
+	public int getSize() {
+		return messages.size();
 	}
 }

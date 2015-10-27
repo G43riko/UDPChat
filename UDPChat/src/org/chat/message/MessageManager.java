@@ -23,8 +23,7 @@ public class MessageManager {
 	public final static byte MESSAGE_LOGOUT 	= 4;
 	public final static byte MESSAGE_WELCOME	= 5;
 	public final static byte MESSAGE_REPAIR		= 6;
-	public final static byte MESSAGE_FOK		= 7;
-	public final static byte MESSAGE_FRES		= 8;
+	public final static byte MESSAGE_FINISH		= 7;
 	
 	private HashMap<Integer, Message> messages = new HashMap<Integer, Message>();
 	private UDPChat parent;
@@ -61,11 +60,10 @@ public class MessageManager {
 	
 	//CREATORS
 	
-	public void createRepairMessage(int order, int msgID) {
-		System.out.println("vytvára sa správa na znovuposlanie id: " + msgID + " order: " + order);
+	public void createRepairMessage(int order, int msgID, byte type) {
+		System.out.println("vytvára sa správa na znovuposlanie id: " + msgID + " order: " + order + " type:" + type);
 		int id = IDGenerator.getId();
-		messages.put(id, new Message(msgID + ":" + order, this, id, MESSAGE_REPAIR));
-		
+		messages.put(id, new Message(msgID + ":" + order + ":" + type, this, id, MESSAGE_REPAIR));
 	}
 	
 	public void createTextMessage(String message) {
@@ -77,7 +75,12 @@ public class MessageManager {
 		int id = IDGenerator.getId();
 		Log.write("MessageManager.createFileMessage: id: " + id, Log.DEBUG);
 		messages.put(id, new Message(file, this, id));
-//		System.out.println(messages);
+	}
+
+	public void createFinishedMessage(int msgID) {
+		int id = IDGenerator.getId();
+		messages.put(id, new Message(String.valueOf(msgID), this, id, MESSAGE_FINISH));
+		messages.remove(msgID);
 	}
 	
 	public void createWelcomeMessage(){
@@ -148,35 +151,50 @@ public class MessageManager {
 			
 			if(message.getBytes()[12] != MESSAGE_REPAIR)
 				System.out.println("chyba v sprave");
-				createRepairMessage(order, id);
+				createRepairMessage(order, id, message.getBytes()[12]);
 			return;
 		}
 		
 		MessagePart msg = parseHeader(finalMSG.getBytes());
 		
-		if(msg.getType() == MESSAGE_FILE)
-			if(msg.getOrder() + 1 < msg.getNumber()){
-				System.out.println("príjala sa sprava: " + msg.getOrder() + " a pýta sa dalšia");
-				createRepairMessage(msg.getOrder()+1, msg.getId());
-			}
+
 		
 		if(messages.containsKey(msg.getId()))
 			messages.get(msg.getId()).recievePart(msg);
 		else
 			messages.put(msg.getId(), new Message(this, msg));
+		
+
+//		if(msg.getType() == MESSAGE_FILE)
+////			if(!hasMsg(msg) )
+//				if(msg.getOrder() + 1 < msg.getNumber()){
+//					System.out.println("príjala sa sprava: " + msg.getOrder() + " a pýta sa dalšia");
+//					createRepairMessage(messages.get(msg.getId()).getSize(), msg.getId());
+//				}
+	}
+
+	private boolean hasMsg(MessagePart msg) {
+		if(!messages.containsKey(msg.getId()))
+			return false;
+		if(messages.get(msg.getId()).hasMessage(msg))
+			return true;
+		return false;
 	}
 
 	public void proccessRepairMessage(String message){
 		String[] content = message.split(":");
-//		System.out.println(message);
 //		System.out.println(messages);
 //		System.out.println("znova sa odosiela správa: " + message + " " + content[0] + " " + content[1]);
 //		System.out.println(messages);
+//		if(Byte.parseByte(content[2]) == MESSAGE_REPAIR || Byte.parseByte(content[2]) == MESSAGE_FINISH)
+//			return;
+		
 		try{
-		messages.get(Integer.parseInt(content[0])).resend(Integer.parseInt(content[1]));
+			messages.get(Integer.parseInt(content[0])).resend(Integer.parseInt(content[1]));
+			System.out.println("reodosiela sa: " + message);
 		}
-		catch(NullPointerException e){
-			System.out.println("nepodarilo sa reodoslať: " + message + " lebo sa nachadza: " + messages.containsKey(Integer.parseInt(content[0])));
+		catch(NullPointerException | NumberFormatException e){
+			System.out.println("nepodarilo sa reodoslať: " + message + " lebo sa nachadza: " + messages.get(Integer.parseInt(content[0])) + " " + e);
 		}
 	}
 	
@@ -186,6 +204,10 @@ public class MessageManager {
 		
 		if(!parent.isServer())
 			createPingMessage();
+	}
+	
+	public void proccessFinishMessage(String message){
+		messages.remove(Integer.valueOf(message));
 	}
 
 	//GETTERS

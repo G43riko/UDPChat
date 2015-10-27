@@ -26,7 +26,8 @@ public class MainUDPChat {
 	 * +logout
 	 * +save recieved file
 	 * +connection out of localhost
-	 * -message checking
+	 * +message checking
+	 * +repeating wrong messages
 	 * -confirm recieved messages
 	 */
 }
