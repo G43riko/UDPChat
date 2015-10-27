@@ -23,7 +23,7 @@ public class UDPChat {
 
 	private String 	ip;
 	private String 	oponentName;
-	private int 	oponentPort;
+//	private int 	oponentPort;
 
 	public UDPChat(){
 		Log.write("zaèal konštruktor objektu UDPChat", Log.CONSTRUCTORS);

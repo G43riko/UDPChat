@@ -10,16 +10,12 @@ import org.chat.Config;
 import org.chat.UDPChat;
 import org.chat.utils.Log;
 
-public final class Client implements Connectionable{
-	private UDPChat 		parent;
-	private DatagramSocket 	socket;
-	private Thread 			listen;
-	private boolean 		running 	= true;
-	public long 			lastContact = System.currentTimeMillis();
+public final class Client extends Connection{
 	
 	public Client(UDPChat parent) {
+		super(parent);
 		Log.write("zaèal konštruktor objektu Client", Log.CONSTRUCTORS);
-		this.parent = parent;
+		lastContact = System.currentTimeMillis();
 		try {
 			socket = new DatagramSocket(parent.getPort() + 1);
 			listen();
@@ -33,7 +29,7 @@ public final class Client implements Connectionable{
 		listen = new Thread(new Runnable(){
 			@Override
 			public void run() {
-				while(running){
+				while(isRunning()){
 					try {
 						byte[] block = new byte[Config.CHAT_TOTAL_MAX_MSG_SIZE];
 						DatagramPacket inpacket = new DatagramPacket(block, block.length);
@@ -44,30 +40,21 @@ public final class Client implements Connectionable{
 						Log.write("Client socket bol zatvorený",e,  Log.EXCEPTIONS);
 					}
 				}
+				socket.close();
 			}
 		});
 		
 		listen.start();
 	}
-	
-	private void proccessMessage(String message){
-//		Log.write("client prijal správu " + message, Log.CONNECTION);
-		parent.getMessageManager().proccessAllRecievedMessages(message);
-	}
-	
-	public void stop() {
-		running = false;
-		socket.close();
-		socket = null;
-	}
-
 
 	@Override
 	public void write(String message){
+		if(!isRunning())
+			return;
 		try {
 			DatagramPacket outpacket = getPacket(message, 
-												 InetAddress.getByName(parent.getIp()), 
-												 parent.getPort()) ;
+												 InetAddress.getByName(getParent().getIp()), 
+												 getParent().getPort()) ;
 			
 			socket.send(outpacket);
 			Log.write("client odoslal správu: " + message, Log.CONNECTION);
@@ -77,10 +64,5 @@ public final class Client implements Connectionable{
 	}
 	
 	@Override
-	public void setLastContact(long lastContact) {this.lastContact = lastContact;}
-
-	@Override
 	public boolean isServer() {return false;}
-	public long getLastContact() {return lastContact;}
-
 }

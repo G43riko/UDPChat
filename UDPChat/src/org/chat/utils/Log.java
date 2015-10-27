@@ -3,13 +3,14 @@ package org.chat.utils;
 import java.util.ArrayList;
 
 public class Log {
-	public final static boolean CONSTRUCTORS 	= true;
-	public final static boolean CONNECTION 		= true;
-	public final static boolean EXCEPTIONS 		= true;
+	public final static boolean CONSTRUCTORS 	= false;
+	public final static boolean CONNECTION 		= false;
+	public final static boolean EXCEPTIONS 		= false;
 //	public final static boolean FILE_MESSAGE 	= false;
-	public final static boolean PING_MESSAGE 	= true;
+	public final static boolean PING_MESSAGE 	= false;
+	public final static boolean DEBUG 			= false;
 	
-	private final static ArrayList<LogMessage> logs = new ArrayList<LogMessage>(); 
+	private final static ArrayList<LogMessage> logs = new ArrayList<LogMessage>();
 	
 	public static void write(String message, boolean val){
 		write(message, null, val);
@@ -18,8 +19,6 @@ public class Log {
 	public static void write(String message,Exception error, boolean val){
 		
 		if(error != null)
-//			error.printStackTrace();
-			//147.175.122.63
 		
 		logs.add(new LogMessage(message, error));
 		if(val){

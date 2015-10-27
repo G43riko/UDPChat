@@ -4,6 +4,8 @@ import org.chat.UDPChat;
 
 public class MainUDPChat {
 	public static void main(String[] args) {
+//		String res = StringXORer.decode("a b", 123);
+//		System.out.println(res);
 		new UDPChat();
 	}
 	/*
@@ -23,8 +25,8 @@ public class MainUDPChat {
 	 * +logging system
 	 * +logout
 	 * +save recieved file
+	 * +connection out of localhost
 	 * -message checking
-	 * -connection out of localhost
 	 * -confirm recieved messages
 	 */
 }

@@ -11,7 +11,7 @@ import org.chat.UDPChat;
 import org.chat.utils.Log;
 import org.chat.utils.Utils;
 
-public final class Server implements Connectionable{
+public final class Server extends Connection{
 	public static final byte CLIENT_SEND_MSG = 0;
 	public static final byte CLIENT_DISCONNECT = 1;
 	public static final byte CLIENT_CONNECT = 2;
@@ -20,18 +20,14 @@ public final class Server implements Connectionable{
 	public static final byte CLIENT_RECIEVE_MSG_OK = 5;
 	public static final byte CLIENT_RECIEVE_MSG_ERROR = 6;
 
-	private DatagramSocket 	socket;
-	private UDPChat 		parent;
-	private Thread 			listen;
 	private Thread 			check;
-	private boolean 		running = true;
-	private long 			lastContact;
 	private long 			requestTime = 0;
 	
 	
 	public Server(UDPChat parent) {
+		super(parent);
 		Log.write("zaèal konštruktor objektu Server", Log.CONSTRUCTORS);
-		this.parent = parent;
+		
 		
 		try {
 			socket = new DatagramSocket(parent.getPort());
@@ -46,14 +42,14 @@ public final class Server implements Connectionable{
 		lastContact = System.currentTimeMillis();
 		check = new Thread(new Runnable(){
 			public void run() {
-				while(running){
+				while(isRunning()){
 					if(System.currentTimeMillis() - lastContact > Config.PING_CHECKING_TIME){
 						if(requestTime == 0){
 							requestTime = System.currentTimeMillis();
-							parent.getMessageManager().createPingMessage();
+							getParent().getMessageManager().createPingMessage();
 						}
 						else if(System.currentTimeMillis() - requestTime > Config.PING_WAITING_TIME){
-							parent.oponenetDisconect();
+							getParent().oponenetDisconect();
 							requestTime = 0;
 						}
 					}
@@ -68,16 +64,14 @@ public final class Server implements Connectionable{
 		check.start();
 	}
 
-	public void stop() {
-		running = false;
-		socket.close();
-	}
 	
 	public void write(String message){
+		if(!isRunning())
+			return;
 		try {
 			DatagramPacket outpacket = getPacket(message, 
-												 InetAddress.getByName(parent.getIp()), 
-												 parent.getPort() + 1);
+												 InetAddress.getByName(getParent().getIp()), 
+												 getParent().getPort() + 1);
 			
 			socket.send(outpacket);
 			Log.write("server odoslal správu: " + message, Log.CONNECTION);
@@ -90,43 +84,28 @@ public final class Server implements Connectionable{
 		listen = new Thread(new Runnable(){
 			@Override
 			public void run() {
-				while(running){
+				while(isRunning()){
 					try {
 						byte[] block = new byte[Config.CHAT_TOTAL_MAX_MSG_SIZE];
 						DatagramPacket inpacket = new DatagramPacket(block, block.length);
 						socket.receive(inpacket);
 						
 
-						if(parent.getIp() != inpacket.getAddress().getHostName())
-							parent.setIp(inpacket.getAddress().getHostAddress());
+						if(getParent().getIp() != inpacket.getAddress().getHostName())
+							getParent().setIp(inpacket.getAddress().getHostAddress());
 						
 						proccessMessage(new String(inpacket.getData(), 0, inpacket.getLength()));
 					} catch (IOException e) {
 						Log.write("Server socket bol zatvorený", e ,Log.EXCEPTIONS);
 					}
 				}
+				socket.close();
 			}
 		});
 		
 		listen.start();
 	}
-	
-	private void proccessMessage(String message){
-//		Log.write("server prijal správu " + message, Log.CONNECTION);
-		
-		parent.getMessageManager().proccessAllRecievedMessages(message);
-	}
 
 	@Override
 	public boolean isServer() {return true;}
-
-	@Override
-	public void setLastContact(long lastContact) {
-		this.lastContact = lastContact;
-	}
-
-	@Override
-	public long getLastContact() {
-		return lastContact;
-	}
 }

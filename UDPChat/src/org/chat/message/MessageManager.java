@@ -13,6 +13,7 @@ import org.chat.UDPChat;
 import org.chat.core.Server;
 import org.chat.utils.IDGenerator;
 import org.chat.utils.Log;
+import org.chat.utils.StringXORer;
 import org.chat.utils.Utils;
 
 public class MessageManager {
@@ -21,6 +22,9 @@ public class MessageManager {
 	public final static byte MESSAGE_FILE 		= 3;
 	public final static byte MESSAGE_LOGOUT 	= 4;
 	public final static byte MESSAGE_WELCOME	= 5;
+	public final static byte MESSAGE_REPAIR		= 6;
+	public final static byte MESSAGE_FOK		= 7;
+	public final static byte MESSAGE_FRES		= 8;
 	
 	private HashMap<Integer, Message> messages = new HashMap<Integer, Message>();
 	private UDPChat parent;
@@ -35,11 +39,6 @@ public class MessageManager {
 	
 	//OTHERS
 	
-	/**
-	 * spracuje èiastkovú správu a vytvorí s nej MessagePart
-	 * @param data
-	 * @return
-	 */
 	private MessagePart parseHeader(byte[] data){
 		int order = Utils.getInt(Arrays.copyOfRange(data, 8, 12));
 		if(data[12] == MESSAGE_FILE && order == 0){
@@ -62,35 +61,30 @@ public class MessageManager {
 	
 	//CREATORS
 	
-	/**
-	 * vytvorí novú textuvú správu 
-	 * @param message
-	 */
+	public void createRepairMessage(int order, int msgID) {
+		System.out.println("vytvára sa správa na znovuposlanie id: " + msgID + " order: " + order);
+		int id = IDGenerator.getId();
+		messages.put(id, new Message(msgID + ":" + order, this, id, MESSAGE_REPAIR));
+		
+	}
+	
 	public void createTextMessage(String message) {
 		int id = IDGenerator.getId();
 		messages.put(id, new Message(message, this, id, MESSAGE_TEXT));
 	}
 	
-	/**
-	 * vytvorí správu odosielajucu súbor 
-	 * @param file
-	 */
 	public void createFileMessage(File file) {
 		int id = IDGenerator.getId();
+		Log.write("MessageManager.createFileMessage: id: " + id, Log.DEBUG);
 		messages.put(id, new Message(file, this, id));
+//		System.out.println(messages);
 	}
 	
-	/**
-	 * vytvorí novú uvítaciu správu
-	 */
 	public void createWelcomeMessage(){
 		int id = IDGenerator.getId();
 		messages.put(id, new Message(parent.getLogin() + ":" + Utils.getIP(), this,  id,  MESSAGE_WELCOME));
 	}
 	
-	/**
-	 * vytvorí rozlúèkovú správu
-	 */
 	public void createLogoutMessage(){
 		int id = IDGenerator.getId();
 		messages.put(id, new Message("", this,  id,  MESSAGE_LOGOUT));
@@ -105,16 +99,14 @@ public class MessageManager {
 	//PROCCESSORS
 	
 	public void proccessLogoutMessage() {
+//		createLogoutMessage();
 		if(parent.isServer())
 			parent.recieveMessage("uživatel " + parent.getOponentName() + " sa odpojil");
 		else
 			parent.recieveMessage("server uživate " + parent.getOponentName() + " bol zrušený");
 		parent.setOponenName(null);
 	}
-	/**
-	 * spracuje prijatú uvítaciu správu
-	 * @param message
-	 */
+	
 	public void proccessWelcomeMessage(String message) {
 		String[] text = message.split(":");
 		parent.setOponenName(text[0]);
@@ -122,15 +114,10 @@ public class MessageManager {
 		if(parent.isServer()){
 			createWelcomeMessage();
 			((Server)parent.getConnection()).startMessageChecking();
-			parent.recieveMessage("pripojil sa uživa�el " + text[0]);
+			parent.recieveMessage("pripojil sa uživaťel " + text[0]);
 		}
 	}
 	
-	/**
-	 * spracuje prijatú správu obsahujúcu súbor
-	 * @param text
-	 * @param fileName
-	 */
 	public void proccessFileMessage(String text, String fileName) {
 		text = text.replace(fileName, "").trim();
 		parent.recieveMessage("prijali ste súbor: " + fileName);
@@ -143,7 +130,6 @@ public class MessageManager {
 				FileWriter fw = new FileWriter(file);
 				fw.write(text);
 				fw.close();
-				
 			}
 				
 		} catch (IOException e) {
@@ -151,12 +137,28 @@ public class MessageManager {
 		}
 	}
 	
-	/**
-	 * spracuje prijatú správu
-	 * @param message
-	 */
 	public void proccessAllRecievedMessages(String message) {
-		MessagePart msg = parseHeader(message.getBytes());
+		int crc = Utils.getInt(message.substring(message.length() - 4, message.length()).getBytes());
+		message = message.substring(0, message.length() - 4);
+		String finalMSG = StringXORer.decode(message, crc);
+		
+		if(finalMSG == null){
+			int order = Utils.getInt(Arrays.copyOfRange(message.getBytes(), 8, 12));
+			int id = Utils.getInt(Arrays.copyOfRange(message.getBytes(), 0, 4));
+			
+			if(message.getBytes()[12] != MESSAGE_REPAIR)
+				System.out.println("chyba v sprave");
+				createRepairMessage(order, id);
+			return;
+		}
+		
+		MessagePart msg = parseHeader(finalMSG.getBytes());
+		
+		if(msg.getType() == MESSAGE_FILE)
+			if(msg.getOrder() + 1 < msg.getNumber()){
+				System.out.println("príjala sa sprava: " + msg.getOrder() + " a pýta sa dalšia");
+				createRepairMessage(msg.getOrder()+1, msg.getId());
+			}
 		
 		if(messages.containsKey(msg.getId()))
 			messages.get(msg.getId()).recievePart(msg);
@@ -164,9 +166,20 @@ public class MessageManager {
 			messages.put(msg.getId(), new Message(this, msg));
 	}
 
-	/** 
-	 * spravuje prijatú správu obsahujucu kontrolu o pripojení
-	 */
+	public void proccessRepairMessage(String message){
+		String[] content = message.split(":");
+//		System.out.println(message);
+//		System.out.println(messages);
+//		System.out.println("znova sa odosiela správa: " + message + " " + content[0] + " " + content[1]);
+//		System.out.println(messages);
+		try{
+		messages.get(Integer.parseInt(content[0])).resend(Integer.parseInt(content[1]));
+		}
+		catch(NullPointerException e){
+			System.out.println("nepodarilo sa reodoslať: " + message + " lebo sa nachadza: " + messages.containsKey(Integer.parseInt(content[0])));
+		}
+	}
+	
 	public void proccessPingMessage() {
 		parent.getConnection().setLastContact(System.currentTimeMillis());
 		Log.write("bola prijatá pingovacia správa", Log.PING_MESSAGE);

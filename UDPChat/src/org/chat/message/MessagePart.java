@@ -12,6 +12,7 @@ public class MessagePart {
 	private String 	text;
 	private String 	qrc;
 	private String 	fileName;
+	private int 	sendTimes = 1;
 //	private boolean okey = false;
 	private long 	sendTime = System.currentTimeMillis();
 	//boolean send;
@@ -34,20 +35,6 @@ public class MessagePart {
 
 	//id spravy, pocet sprav,cislo spravy, velkos správy, typ spravy, [velkos nazvu suboru, nazov suboru]
 
-//	@Override
-//	public String toString() {
-//		return messageType + " - " + messageOrder + "/" + messagesNumber + " : " + text;
-//	}
-
-	/**
-	 * poskladá hlavièku s údajov v argumente
-	 * @param id
-	 * @param messagesNumber
-	 * @param messageOrder
-	 * @param type
-	 * @param filename
-	 * @return
-	 */
 	private  byte[] createHeader(int id, int messagesNumber, int messageOrder, byte type, String filename){
 		//XIDXXMNXXMOXTXFLXfilenameDATA
 		byte[]result = Utils.concatenate(Utils.getByteArray(id), Utils.getByteArray(messagesNumber));
@@ -61,6 +48,10 @@ public class MessagePart {
 		return result;
 	}
 	
+	public void increaseSendTimes(){
+		sendTimes++;
+	}
+	
 	//GETTERS
 
 	public String 	getText() {if(text == null) return ""; return text.substring(1, text.length());}
@@ -68,6 +59,7 @@ public class MessagePart {
 	public int 		getId() {return id;}
 	public int 		getOrder() {return order;}
 	public int 		getNumber() {return number;}
+	public int 		getSendTimes() {return sendTimes;}
 	public byte[] 	getData() {return data;}
 	public byte 	getType() {return type;}
 
