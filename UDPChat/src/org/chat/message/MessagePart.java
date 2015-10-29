@@ -13,7 +13,7 @@ public class MessagePart {
 	private String 	qrc;
 	private String 	fileName;
 	private int 	sendTimes = 1;
-//	private boolean okey = false;
+	private boolean okey = false;
 	private long 	sendTime = System.currentTimeMillis();
 	//boolean send;
 	
@@ -55,6 +55,14 @@ public class MessagePart {
 	//GETTERS
 
 	public String 	getText() {if(text == null) return ""; return text.substring(1, text.length());}
+	public boolean isOkey() {
+		return okey;
+	}
+
+	public void setOkey() {
+		this.okey = true;
+	}
+
 	public String 	getFileName() {return fileName;}
 	public int 		getId() {return id;}
 	public int 		getOrder() {return order;}

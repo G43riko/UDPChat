@@ -115,8 +115,6 @@ public class Message {
 				parent.proccessFinishMessage(getText());
 				break;
 		}
-		if(messages.get(0).getType() != MessageManager.MESSAGE_FINISH)
-			parent.createFinishedMessage(id);
 	}
 	
 	private ArrayList<String> divideMessage(String message, int maxLength){
@@ -132,13 +130,16 @@ public class Message {
 	
 	public void recievePart(MessagePart msg) {
 		if(msg.getType() == MessageManager.MESSAGE_FILE){
-			System.out.println("bola prijatá " + messages.size() + "ta správa s " + parts + " s order: " + msg.getOrder());
+//			System.out.println("bola prijatá " + messages.size() + "ta správa s " + parts + " s order: " + msg.getOrder());
 //			for(int i=msg.getOrder() ; i>=0 ; i--)
 //				if(!messages.containsKey(i))
 //					parent.createRepairMessage(i, msg.getId());
+			
+			
 			if(maxFileOrder+1 < parts)
 				parent.createRepairMessage(++maxFileOrder, msg.getId(), msg.getType());
 		}
+		
 		
 		
 		if(messages.containsKey(msg.getOrder()))
@@ -179,5 +180,17 @@ public class Message {
 
 	public int getSize() {
 		return messages.size();
+	}
+
+	public void wasSendSuccesfully(Integer num) {
+		if(messages.containsKey(num))
+			messages.get(num).setOkey();
+		
+		if(num == parts-1)
+			for(int i=0 ; i<messages.size() ; i++)
+				if(!messages.get(i).isOkey()){
+					System.out.println("doposielasa správa s id: " + messages.get(i).getOrder());
+					encodeAndSend(messages.get(i));
+				}
 	}
 }

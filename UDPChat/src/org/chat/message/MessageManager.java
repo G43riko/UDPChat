@@ -61,7 +61,7 @@ public class MessageManager {
 	//CREATORS
 	
 	public void createRepairMessage(int order, int msgID, byte type) {
-		System.out.println("vytvára sa správa na znovuposlanie id: " + msgID + " order: " + order + " type:" + type);
+//		System.out.println("vytvára sa správa na znovuposlanie id: " + msgID + " order: " + order + " type:" + type);
 		int id = IDGenerator.getId();
 		messages.put(id, new Message(msgID + ":" + order + ":" + type, this, id, MESSAGE_REPAIR));
 	}
@@ -77,10 +77,10 @@ public class MessageManager {
 		messages.put(id, new Message(file, this, id));
 	}
 
-	public void createFinishedMessage(int msgID) {
+	public void createFinishedMessage(MessagePart msg) {
 		int id = IDGenerator.getId();
-		messages.put(id, new Message(String.valueOf(msgID), this, id, MESSAGE_FINISH));
-		messages.remove(msgID);
+		messages.put(id, new Message(msg.getId() + ":" + msg.getOrder() + ":" + msg.getNumber() + ":" + msg.getType(), this, id, MESSAGE_FINISH));
+//		messages.remove(msgID);
 	}
 	
 	public void createWelcomeMessage(){
@@ -158,6 +158,8 @@ public class MessageManager {
 		MessagePart msg = parseHeader(finalMSG.getBytes());
 		
 
+		if(msg.getType() != MessageManager.MESSAGE_FINISH)
+			createFinishedMessage(msg);
 		
 		if(messages.containsKey(msg.getId()))
 			messages.get(msg.getId()).recievePart(msg);
@@ -191,7 +193,7 @@ public class MessageManager {
 		
 		try{
 			messages.get(Integer.parseInt(content[0])).resend(Integer.parseInt(content[1]));
-			System.out.println("reodosiela sa: " + message);
+//			System.out.println("reodosiela sa: " + message);
 		}
 		catch(NullPointerException | NumberFormatException e){
 			System.out.println("nepodarilo sa reodoslať: " + message + " lebo sa nachadza: " + messages.get(Integer.parseInt(content[0])) + " " + e);
@@ -207,7 +209,11 @@ public class MessageManager {
 	}
 	
 	public void proccessFinishMessage(String message){
-		messages.remove(Integer.valueOf(message));
+//		messages.remove(Integer.valueOf(message));
+		String[] content = message.split(":");
+		Log.write("bola prijatá správa o úspešnom doručení: " + message, Log.FIXER);
+		if(messages.containsKey(Integer.valueOf(content[0])))
+			messages.get(Integer.valueOf(content[0])).wasSendSuccesfully(Integer.valueOf(content[1]));
 	}
 
 	//GETTERS

@@ -11,6 +11,7 @@ public class Log {
 	public final static boolean DEBUG 			= true;
 	
 	private final static ArrayList<LogMessage> logs = new ArrayList<LogMessage>();
+	public static final boolean FIXER = true;
 	
 	public static void write(String message, boolean val){
 		write(message, null, val);
