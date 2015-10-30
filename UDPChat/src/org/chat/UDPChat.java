@@ -41,7 +41,7 @@ public class UDPChat {
 		gui.showLoginView();
 
 		connection.stop();
-		connection = null;
+//		connection = null;
 //		Log.printLogs(                                                                                                                                   );
 	}
 

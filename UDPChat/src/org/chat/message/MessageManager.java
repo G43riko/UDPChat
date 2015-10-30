@@ -1,9 +1,11 @@
 package org.chat.message;
 
+import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileWriter;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 
 import javax.swing.JFileChooser;
@@ -33,6 +35,20 @@ public class MessageManager {
 	public MessageManager(UDPChat parent) {
 		Log.write("zaèal konštruktor objektu MessageManager", Log.CONSTRUCTORS);
 		this.parent = parent;
+		
+//		looper = new Thread(new Runnable(){
+//			public void run() {
+//				while(true){
+//					 new HashMap<Integer, Message>(messages).entrySet().stream()
+//									   .map(a -> a.getValue())
+//									   .filter(a -> !a.isOkey())
+//									   .filter(a -> System.currentTimeMillis() - a.getLastContact() > 1000)
+//									   .forEach(a -> a.resend());
+//					Utils.sleep(1000);
+//				}
+//			}
+//		});
+//		looper.start();
 		Log.write("skonèil konštruktor objektu MessageManager", Log.CONSTRUCTORS);
 	}
 	
@@ -79,13 +95,14 @@ public class MessageManager {
 
 	public void createFinishedMessage(MessagePart msg) {
 		int id = IDGenerator.getId();
+		Log.write("odosiela sa správa o úspešnom doručení: " + msg.getId() + ":" + msg.getOrder() + ":" + msg.getNumber() + ":" + msg.getType(), Log.FIXER);
 		messages.put(id, new Message(msg.getId() + ":" + msg.getOrder() + ":" + msg.getNumber() + ":" + msg.getType(), this, id, MESSAGE_FINISH));
 //		messages.remove(msgID);
 	}
 	
 	public void createWelcomeMessage(){
 		int id = IDGenerator.getId();
-		messages.put(id, new Message(parent.getLogin() + ":" + Utils.getIP(), this,  id,  MESSAGE_WELCOME));
+		messages.put(id, new Message(parent.getLogin() + ":" + Utils.getMyIP(), this,  id,  MESSAGE_WELCOME));
 	}
 	
 	public void createLogoutMessage(){
@@ -129,10 +146,10 @@ public class MessageManager {
 			JFileChooser fc = new JFileChooser();
 			if(JOptionPane.showConfirmDialog(parent.getGui(), message) == JOptionPane.YES_OPTION){
 				fc.showSaveDialog(parent.getGui());
-				File file = fc.getSelectedFile();
-				FileWriter fw = new FileWriter(file);
-				fw.write(text);
-				fw.close();
+				
+				BufferedOutputStream o = new BufferedOutputStream(new FileOutputStream(fc.getSelectedFile()));
+				o.write(Base64.getDecoder().decode(text));
+				o.close();
 			}
 				
 		} catch (IOException e) {
@@ -157,9 +174,9 @@ public class MessageManager {
 		
 		MessagePart msg = parseHeader(finalMSG.getBytes());
 		
-
-		if(msg.getType() != MessageManager.MESSAGE_FINISH)
-			createFinishedMessage(msg);
+//
+//		if(msg.getType() != MessageManager.MESSAGE_FINISH)
+//			createFinishedMessage(msg);
 		
 		if(messages.containsKey(msg.getId()))
 			messages.get(msg.getId()).recievePart(msg);
@@ -175,17 +192,9 @@ public class MessageManager {
 //				}
 	}
 
-	private boolean hasMsg(MessagePart msg) {
-		if(!messages.containsKey(msg.getId()))
-			return false;
-		if(messages.get(msg.getId()).hasMessage(msg))
-			return true;
-		return false;
-	}
-
-	public void proccessRepairMessage(String message){
-		String[] content = message.split(":");
-//		System.out.println(messages);
+	public void proccessRepairMessage(Message message){
+		String[] content = message.getText().split(":");
+		System.out.println("znova sa odosiela správa: " + message);
 //		System.out.println("znova sa odosiela správa: " + message + " " + content[0] + " " + content[1]);
 //		System.out.println(messages);
 //		if(Byte.parseByte(content[2]) == MESSAGE_REPAIR || Byte.parseByte(content[2]) == MESSAGE_FINISH)
@@ -196,7 +205,8 @@ public class MessageManager {
 //			System.out.println("reodosiela sa: " + message);
 		}
 		catch(NullPointerException | NumberFormatException e){
-			System.out.println("nepodarilo sa reodoslať: " + message + " lebo sa nachadza: " + messages.get(Integer.parseInt(content[0])) + " " + e);
+			createRepairMessage(0, message.getId(), MESSAGE_REPAIR);
+//			System.out.println("nepodarilo sa reodoslať: " + message + " lebo sa nachadza: " + messages.get(Integer.parseInt(content[0])) + " " + e);
 		}
 	}
 	

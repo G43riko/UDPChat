@@ -10,11 +10,11 @@ public class MessagePart {
 	private byte 	type;
 	private byte[] 	data;
 	private String 	text;
-	private String 	qrc;
+//	private String 	qrc;
 	private String 	fileName;
 	private int 	sendTimes = 1;
 	private boolean okey = false;
-	private long 	sendTime = System.currentTimeMillis();
+//	private long 	sendTime = System.currentTimeMillis();
 	//boolean send;
 	
 	//CONSTRUCTORS
@@ -29,11 +29,14 @@ public class MessagePart {
 		
 		
 		data = createHeader(id, number, order, type, fileName);
-		if(text != null)
+		if(text != null){
 			data = Utils.concatenate(data, text.getBytes());
+		}
 	}
 
 	//id spravy, pocet sprav,cislo spravy, velkosù spr·vy, typ spravy, [velkosù nazvu suboru, nazov suboru]
+
+
 
 	private  byte[] createHeader(int id, int messagesNumber, int messageOrder, byte type, String filename){
 		//XIDXXMNXXMOXTXFLXfilenameDATA
@@ -70,6 +73,10 @@ public class MessagePart {
 	public int 		getSendTimes() {return sendTimes;}
 	public byte[] 	getData() {return data;}
 	public byte 	getType() {return type;}
+
+	public void setOrder(int order) {
+		this.order = order;
+	}
 
 
 }

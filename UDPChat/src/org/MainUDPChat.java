@@ -4,8 +4,6 @@ import org.chat.UDPChat;
 
 public class MainUDPChat {
 	public static void main(String[] args) {
-//		String res = StringXORer.decode("a b", 123);
-//		System.out.println(res);
 		new UDPChat();
 	}
 	/*
@@ -21,6 +19,7 @@ public class MainUDPChat {
 	 * +message recieving
 	 * +file sending
 	 * +file recieving
+	 * +use Base64 coding to transfer binary file
 	 * +ping
 	 * +logging system
 	 * +logout
@@ -28,6 +27,6 @@ public class MainUDPChat {
 	 * +connection out of localhost
 	 * +message checking
 	 * +repeating wrong messages
-	 * -confirm recieved messages
+	 * +confirm recieved messages
 	 */
 }

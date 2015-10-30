@@ -34,7 +34,6 @@ public final class Client extends Connection{
 						byte[] block = new byte[Config.CHAT_TOTAL_MAX_MSG_SIZE];
 						DatagramPacket inpacket = new DatagramPacket(block, block.length);
 						socket.receive(inpacket);
-						
 						proccessMessage(new String(inpacket.getData(), 0, inpacket.getLength()));
 					} catch (IOException e) {
 						Log.write("Client socket bol zatvorený",e,  Log.EXCEPTIONS);

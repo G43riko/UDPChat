@@ -14,6 +14,13 @@ public class Utils {
 	     return ByteBuffer.wrap(bytes).getInt();
 	}
 	
+	public static char[] convertByteArrayCharArray(byte[] in){
+		char[] out = new char[in.length];
+		for(int i=0 ; i<in.length ; i++)
+			out[i] = (char)in[i];
+		return out;
+	}
+	
 	public static byte[] concatenate (byte[] a, byte b[]) {
 	    int aLen = a.length;
 	    int bLen = b.length;
@@ -31,6 +38,13 @@ public class Utils {
 	
 	public static void drawByteArray(byte[] array){
 		for(byte b : array)
+			System.out.print(b + ", ");
+		
+		System.out.println("");
+	}
+	
+	public static<T> void drawArray(T[] array){
+		for(T b : array)
 			System.out.print(b + ", ");
 		
 		System.out.println("");
@@ -57,13 +71,13 @@ public class Utils {
 	
 	public static void sleep(int ms){
 		try {
-			Thread.sleep(ms);
+				Thread.sleep(ms);
 		} catch (InterruptedException e) {
 			Log.write("nepodarilo sa uspaù vl·kno", e, Log.EXCEPTIONS);
 		}
 	}
 
-	public static String getIP() {
+	public static String getMyIP() {
 		try {
 			return InetAddress.getLocalHost().getHostAddress();
 		} catch (UnknownHostException e) {

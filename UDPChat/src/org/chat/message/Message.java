@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 
 import org.chat.Config;
@@ -18,6 +19,8 @@ public class Message {
 	private int id;
 	private int parts;
 	private String fileName;
+	private boolean okey = false;
+	private long lastContact;
 	private int maxFileOrder = 0;
 	
 	//CONSTRUCTORS
@@ -42,8 +45,8 @@ public class Message {
 		for(int i=0 ; i<parts ; i++){
 			MessagePart msg = new MessagePart(msgs.get(i), null, id, msgs.size(), i, messageType);
 			messages.put(i, msg);
-			encodeAndSend(msg);
 		}
+		encodeAndSend(messages.get(0));
 	}
 	
 	public Message(File file, MessageManager parent, int id) {
@@ -52,9 +55,8 @@ public class Message {
 		
 		Log.write("Message.Message(File,MessageManager,int): id je:" + id, Log.DEBUG);
 		try {
-			byte[] data = Files.readAllBytes(file.toPath());
-			
-			ArrayList<String> msgs = divideMessage(new String(data), parent.getParent().getMaxMsgLenght());
+			String data = Base64.getEncoder().encodeToString(Files.readAllBytes(file.toPath()));
+			ArrayList<String> msgs = divideMessage(data, parent.getParent().getMaxMsgLenght());
 			parts = msgs.size();
 			for(int i=0 ; i<parts ; i++){
 				MessagePart msg = new MessagePart(msgs.get(i),
@@ -64,16 +66,9 @@ public class Message {
 												  i, 
 												  MessageManager.MESSAGE_FILE);
 				messages.put(i, msg);
-//				Utils.sleep(100);
 			}
 			encodeAndSend(messages.get(0));
-			System.out.println("odosila sa prva cast zo suboru s id: "+ messages.get(0).getId());
-//			Thread t = new Thread(new Runnable(){
-//				public void run() {
-//					new HashMap<Integer, MessagePart>(messages).entrySet().stream().forEach(a->encodeAndSend(a.getValue()));	
-//				}
-//			});
-//			t.start();
+			
 		} catch (IOException e) {
 			Log.write("nepodarilo sa vytvoriš správu pre odoslanie súboru", e, Log.EXCEPTIONS);
 		} 
@@ -109,7 +104,7 @@ public class Message {
 				parent.proccessPingMessage();
 				break;
 			case MessageManager.MESSAGE_REPAIR :
-				parent.proccessRepairMessage(getText());
+				parent.proccessRepairMessage(this);
 				break;
 			case MessageManager.MESSAGE_FINISH :
 				parent.proccessFinishMessage(getText());
@@ -129,18 +124,26 @@ public class Message {
 	}
 	
 	public void recievePart(MessagePart msg) {
-		if(msg.getType() == MessageManager.MESSAGE_FILE){
-//			System.out.println("bola prijatá " + messages.size() + "ta správa s " + parts + " s order: " + msg.getOrder());
-//			for(int i=msg.getOrder() ; i>=0 ; i--)
-//				if(!messages.containsKey(i))
-//					parent.createRepairMessage(i, msg.getId());
-			
-			
-			if(maxFileOrder+1 < parts)
-				parent.createRepairMessage(++maxFileOrder, msg.getId(), msg.getType());
+//		if(msg.getType() == MessageManager.MESSAGE_FILE){
+////			System.out.println("bola prijatá " + messages.size() + "ta správa s " + parts + " s order: " + msg.getOrder());
+////			for(int i=msg.getOrder() ; i>=0 ; i--)
+////				if(!messages.containsKey(i))
+////					parent.createRepairMessage(i, msg.getId());
+//			
+//			
+//			if(maxFileOrder+1 < parts)
+//				parent.createRepairMessage(++maxFileOrder, msg.getId(), msg.getType());
+//		}
+		maxFileOrder++;
+		
+		if(maxFileOrder + 1 != msg.getOrder()){
+			System.out.println("je divné číslo " + msg.getOrder() + " lebo má byť: " + maxFileOrder + 1);
+			msg.setOrder(maxFileOrder - 1);
 		}
 		
-		
+		if(!messages.containsKey(msg.getOrder()) || !messages.get(msg.getOrder()).isOkey() || msg.getType() == MessageManager.MESSAGE_REPAIR)
+			if(msg.getType() != MessageManager.MESSAGE_FINISH)
+				parent.createFinishedMessage(msg);
 		
 		if(messages.containsKey(msg.getOrder()))
 			return;
@@ -154,7 +157,7 @@ public class Message {
 			messageProccess();
 	}
 
-	private String getText() {
+	public String getText() {
 		String res = messages.get(0).getText();
 		for(int i=1 ; i<parts ; i++)
 			res += messages.get(i).getText();
@@ -186,11 +189,46 @@ public class Message {
 		if(messages.containsKey(num))
 			messages.get(num).setOkey();
 		
-		if(num == parts-1)
-			for(int i=0 ; i<messages.size() ; i++)
-				if(!messages.get(i).isOkey()){
-					System.out.println("doposielasa správa s id: " + messages.get(i).getOrder());
-					encodeAndSend(messages.get(i));
-				}
+		lastContact = System.currentTimeMillis();
+//		Utils.sleep(10);
+		maxFileOrder++;
+		
+		if(num+1 != maxFileOrder && messages.containsKey(maxFileOrder - 1))
+			encodeAndSend(messages.get(maxFileOrder - 1));
+		
+		Utils.sleep(100);
+		
+		
+		if(messages.containsKey(num + 1)){
+			System.out.println("a odosiela sa dalšia časť " + (num + 1) + " == " + maxFileOrder);
+			encodeAndSend(messages.get(maxFileOrder));
+		}
+		
+//		if(num == parts-1)
+//			for(int i=0 ; i<messages.size() ; i++)
+//				if(!messages.get(i).isOkey()){
+//					System.out.println("doposielasa správa s id: " + messages.get(i).getOrder());
+//					encodeAndSend(messages.get(i));
+//				}
+	}
+
+	public boolean isOkey() {
+		return okey;
+	}
+
+	public long getLastContact() {
+		return lastContact;
+	}
+
+	public void resend() {
+		if(messages.get(0).getType() != MessageManager.MESSAGE_FILE && messages.get(0).getType() != MessageManager.MESSAGE_TEXT)
+			return;
+		
+		System.out.println("správa bola s dovodu neaktivy vyžiadaná znovu");
+		lastContact = System.currentTimeMillis();
+		int i=0;
+		while(messages.get(i++).isOkey());
+		encodeAndSend(messages.get(i - 1));
+		
 	}
 }

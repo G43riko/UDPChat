@@ -26,6 +26,7 @@ public abstract class Connection implements Connectionable{
 	}
 
 	public void stop() {
+//		listen.interrupt();
 		running = false;
 	}
 
