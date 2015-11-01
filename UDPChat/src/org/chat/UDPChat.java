@@ -17,7 +17,6 @@ public class UDPChat {
 	private String 	login;
 	private String 	port;
 	public void setIp(String ip) {
-//		System.out.println("ip: " + ip);
 		this.ip = ip;
 	}
 

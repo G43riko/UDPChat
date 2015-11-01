@@ -35,20 +35,6 @@ public class MessageManager {
 	public MessageManager(UDPChat parent) {
 		Log.write("zaèal konštruktor objektu MessageManager", Log.CONSTRUCTORS);
 		this.parent = parent;
-		
-//		looper = new Thread(new Runnable(){
-//			public void run() {
-//				while(true){
-//					 new HashMap<Integer, Message>(messages).entrySet().stream()
-//									   .map(a -> a.getValue())
-//									   .filter(a -> !a.isOkey())
-//									   .filter(a -> System.currentTimeMillis() - a.getLastContact() > 1000)
-//									   .forEach(a -> a.resend());
-//					Utils.sleep(1000);
-//				}
-//			}
-//		});
-//		looper.start();
 		Log.write("skonèil konštruktor objektu MessageManager", Log.CONSTRUCTORS);
 	}
 	
@@ -77,7 +63,6 @@ public class MessageManager {
 	//CREATORS
 	
 	public void createRepairMessage(int order, int msgID, byte type) {
-//		System.out.println("vytvára sa správa na znovuposlanie id: " + msgID + " order: " + order + " type:" + type);
 		int id = IDGenerator.getId();
 		messages.put(id, new Message(msgID + ":" + order + ":" + type, this, id, MESSAGE_REPAIR));
 	}
@@ -97,7 +82,7 @@ public class MessageManager {
 		int id = IDGenerator.getId();
 		Log.write("odosiela sa správa o úspešnom doručení: " + msg.getId() + ":" + msg.getOrder() + ":" + msg.getNumber() + ":" + msg.getType(), Log.FIXER);
 		messages.put(id, new Message(msg.getId() + ":" + msg.getOrder() + ":" + msg.getNumber() + ":" + msg.getType(), this, id, MESSAGE_FINISH));
-//		messages.remove(msgID);
+//		TODO messages.remove(msgID);
 	}
 	
 	public void createWelcomeMessage(){
@@ -119,7 +104,8 @@ public class MessageManager {
 	//PROCCESSORS
 	
 	public void proccessLogoutMessage() {
-//		createLogoutMessage();
+		//TODO ak to bude blbnuť toto zakomentovať
+		createLogoutMessage();
 		if(parent.isServer())
 			parent.recieveMessage("uživatel " + parent.getOponentName() + " sa odpojil");
 		else
@@ -138,7 +124,7 @@ public class MessageManager {
 		}
 	}
 	
-	public void proccessFileMessage(String text, String fileName) {
+	public void proccessFileMessage(String text, String fileName){
 		text = text.replace(fileName, "").trim();
 		parent.recieveMessage("prijali ste súbor: " + fileName);
 		try {
@@ -151,12 +137,12 @@ public class MessageManager {
 				o.write(Base64.getDecoder().decode(text));
 				o.close();
 			}
-				
+
 		} catch (IOException e) {
 			Log.write("nepodarilo sa spracova� prijatý súbor", e, Log.EXCEPTIONS);
 		}
 	}
-	
+
 	public void proccessAllRecievedMessages(String message) {
 		int crc = Utils.getInt(message.substring(message.length() - 4, message.length()).getBytes());
 		message = message.substring(0, message.length() - 4);
@@ -167,46 +153,29 @@ public class MessageManager {
 			int id = Utils.getInt(Arrays.copyOfRange(message.getBytes(), 0, 4));
 			
 			if(message.getBytes()[12] != MESSAGE_REPAIR)
-				System.out.println("chyba v sprave");
+			Log.write("chyba v správe s order: " + order + ", id: " + id, Log.CONNECTION);
 				createRepairMessage(order, id, message.getBytes()[12]);
 			return;
 		}
 		
 		MessagePart msg = parseHeader(finalMSG.getBytes());
 		
-//
-//		if(msg.getType() != MessageManager.MESSAGE_FINISH)
-//			createFinishedMessage(msg);
-		
 		if(messages.containsKey(msg.getId()))
 			messages.get(msg.getId()).recievePart(msg);
 		else
 			messages.put(msg.getId(), new Message(this, msg));
 		
-
-//		if(msg.getType() == MESSAGE_FILE)
-////			if(!hasMsg(msg) )
-//				if(msg.getOrder() + 1 < msg.getNumber()){
-//					System.out.println("príjala sa sprava: " + msg.getOrder() + " a pýta sa dalšia");
-//					createRepairMessage(messages.get(msg.getId()).getSize(), msg.getId());
-//				}
 	}
 
 	public void proccessRepairMessage(Message message){
 		String[] content = message.getText().split(":");
-		System.out.println("znova sa odosiela správa: " + message);
-//		System.out.println("znova sa odosiela správa: " + message + " " + content[0] + " " + content[1]);
-//		System.out.println(messages);
-//		if(Byte.parseByte(content[2]) == MESSAGE_REPAIR || Byte.parseByte(content[2]) == MESSAGE_FINISH)
-//			return;
+		Log.write("znova sa odosiela správa: " + message, Log.CONNECTION);
 		
 		try{
 			messages.get(Integer.parseInt(content[0])).resend(Integer.parseInt(content[1]));
-//			System.out.println("reodosiela sa: " + message);
 		}
 		catch(NullPointerException | NumberFormatException e){
 			createRepairMessage(0, message.getId(), MESSAGE_REPAIR);
-//			System.out.println("nepodarilo sa reodoslať: " + message + " lebo sa nachadza: " + messages.get(Integer.parseInt(content[0])) + " " + e);
 		}
 	}
 	
@@ -219,7 +188,6 @@ public class MessageManager {
 	}
 	
 	public void proccessFinishMessage(String message){
-//		messages.remove(Integer.valueOf(message));
 		String[] content = message.split(":");
 		Log.write("bola prijatá správa o úspešnom doručení: " + message, Log.FIXER);
 		if(messages.containsKey(Integer.valueOf(content[0])))

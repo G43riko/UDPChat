@@ -113,7 +113,6 @@ public class Message {
 	}
 	
 	private ArrayList<String> divideMessage(String message, int maxLength){
-//		Log.write("Message.divideMessage: delí sa správa: " + message, Log.DEBUG);
 		ArrayList<String> result = new ArrayList<String>();
 		while(message.length() > maxLength){
 			result.add(message.substring(0, maxLength));
@@ -124,20 +123,9 @@ public class Message {
 	}
 	
 	public void recievePart(MessagePart msg) {
-//		if(msg.getType() == MessageManager.MESSAGE_FILE){
-////			System.out.println("bola prijatá " + messages.size() + "ta správa s " + parts + " s order: " + msg.getOrder());
-////			for(int i=msg.getOrder() ; i>=0 ; i--)
-////				if(!messages.containsKey(i))
-////					parent.createRepairMessage(i, msg.getId());
-//			
-//			
-//			if(maxFileOrder+1 < parts)
-//				parent.createRepairMessage(++maxFileOrder, msg.getId(), msg.getType());
-//		}
 		maxFileOrder++;
 		
 		if(maxFileOrder + 1 != msg.getOrder()){
-			System.out.println("je divné číslo " + msg.getOrder() + " lebo má byť: " + maxFileOrder + 1);
 			msg.setOrder(maxFileOrder - 1);
 		}
 		
@@ -190,7 +178,6 @@ public class Message {
 			messages.get(num).setOkey();
 		
 		lastContact = System.currentTimeMillis();
-//		Utils.sleep(10);
 		maxFileOrder++;
 		
 		if(num+1 != maxFileOrder && messages.containsKey(maxFileOrder - 1))
@@ -200,16 +187,9 @@ public class Message {
 		
 		
 		if(messages.containsKey(num + 1)){
-			System.out.println("a odosiela sa dalšia časť " + (num + 1) + " == " + maxFileOrder);
+			Log.write("a odosiela sa dalšia časť " + (num + 1) + " == " + maxFileOrder, Log.DEBUG);
 			encodeAndSend(messages.get(maxFileOrder));
 		}
-		
-//		if(num == parts-1)
-//			for(int i=0 ; i<messages.size() ; i++)
-//				if(!messages.get(i).isOkey()){
-//					System.out.println("doposielasa správa s id: " + messages.get(i).getOrder());
-//					encodeAndSend(messages.get(i));
-//				}
 	}
 
 	public boolean isOkey() {
@@ -223,10 +203,11 @@ public class Message {
 	public void resend() {
 		if(messages.get(0).getType() != MessageManager.MESSAGE_FILE && messages.get(0).getType() != MessageManager.MESSAGE_TEXT)
 			return;
-		
-		System.out.println("správa bola s dovodu neaktivy vyžiadaná znovu");
+
+		Log.write("správa bola s dovodu neaktivy vyžiadaná znovu", Log.DEBUG);
 		lastContact = System.currentTimeMillis();
-		int i=0;
+		
+		int i = 0;
 		while(messages.get(i++).isOkey());
 		encodeAndSend(messages.get(i - 1));
 		
