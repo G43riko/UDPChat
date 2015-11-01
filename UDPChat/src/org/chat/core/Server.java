@@ -28,7 +28,6 @@ public final class Server extends Connection{
 		super(parent);
 		Log.write("zaèal konštruktor objektu Server", Log.CONSTRUCTORS);
 		
-		
 		try {
 			socket = new DatagramSocket(parent.getPort());
 			listen();

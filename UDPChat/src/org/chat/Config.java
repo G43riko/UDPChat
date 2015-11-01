@@ -15,4 +15,5 @@ public class Config {
 	public final static int PING_WAITING_TIME		= 3000;
 	public final static int PING_CHECKING_TIME		= 5000;
 	public static final int CHAT_MAX_SEND_NUMBER 	= 5;
+	public static final String CHAT_BAD_MSG 		= "/*bad*/";
 }

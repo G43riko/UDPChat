@@ -22,6 +22,7 @@ public class Message {
 	private boolean okey = false;
 	private long lastContact;
 	private int maxFileOrder = 0;
+	private boolean bad = false;
 	
 	//CONSTRUCTORS
 	
@@ -36,9 +37,16 @@ public class Message {
 		Log.write("skonèil konštruktor objektu Message", Log.CONSTRUCTORS);
 	}
 
+	
 	public Message(String message, MessageManager parent, int id, byte messageType){
 		this.parent = parent;
 		this.id = id;
+			
+
+		if(message.contains(Config.CHAT_BAD_MSG)){
+			this.bad = true;
+			message = message.replace(Config.CHAT_BAD_MSG, "");
+		}
 		
 		ArrayList<String> msgs = divideMessage(message, parent.getParent().getMaxMsgLenght());
 		parts = msgs.size();
@@ -82,7 +90,12 @@ public class Message {
 		
 		int msgID = IDGenerator.getId();
 		String finalMessage = StringXORer.encode(new String(part.getData()), msgID);
-		finalMessage += new String(Utils.getByteArray(msgID));
+		if(bad){
+			finalMessage += new String(Utils.getByteArray(msgID / 2));
+			bad = false;
+		}
+		else
+			finalMessage += new String(Utils.getByteArray(msgID));
 		parent.getParent().getConnection().write(finalMessage);
 	};
 	
